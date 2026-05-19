@@ -27,7 +27,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <Rocket className="w-5 h-5 text-primary" />
               </div>
               <span className="font-headline font-bold text-lg tracking-tighter text-white">
-                AETHER<span className="text-primary">CORE</span>
+                CYGEN<span className="text-primary"> DAWN</span>
               </span>
             </Link>
           </SidebarHeader>

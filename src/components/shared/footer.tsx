@@ -11,7 +11,7 @@ export function Footer() {
               <Rocket className="w-6 h-6 text-primary" />
             </div>
             <span className="text-xl font-bold font-headline tracking-tighter text-white">
-              AETHER<span className="text-primary">CORE</span>
+              CYGEN<span className="text-primary"> DAWN</span>
             </span>
           </Link>
           <p className="text-muted-foreground text-sm leading-relaxed">

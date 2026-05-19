@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Rocket, User, Briefcase, Mail, Lock } from "lucide-react";
+import { Rocket, User, Briefcase } from "lucide-react";
 
 export default function RegisterPage() {
   const [role, setRole] = useState("client");
@@ -23,10 +23,10 @@ export default function RegisterPage() {
               <Rocket className="w-6 h-6 text-primary" />
             </div>
             <span className="text-2xl font-bold font-headline tracking-tighter text-white">
-              AETHER<span className="text-primary">CORE</span>
+              CYGEN<span className="text-primary"> DAWN</span>
             </span>
           </Link>
-          <h1 className="text-3xl font-bold text-white font-headline">Join AetherCore</h1>
+          <h1 className="text-3xl font-bold text-white font-headline">Join CyGen Dawn</h1>
           <p className="text-muted-foreground">Start your journey with Cyber Generation Dawn.</p>
         </div>
 

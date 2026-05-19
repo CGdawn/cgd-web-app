@@ -11,7 +11,7 @@ export function AIAssistant() {
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [messages, setMessages] = useState<{ role: 'user' | 'ai', text: string }[]>([
-    { role: 'ai', text: "Welcome to AetherCore! I'm your AI assistant. How can I help you today regarding CG DAWN's services or vision?" }
+    { role: 'ai', text: "Welcome to CyGen Dawn! I'm your AI assistant. How can I help you today regarding CG DAWN's services or vision?" }
   ]);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -45,7 +45,7 @@ export function AIAssistant() {
                 <Bot className="w-5 h-5 text-white" />
               </div>
               <div>
-                <h4 className="text-sm font-bold text-white">AetherAI Assistant</h4>
+                <h4 className="text-sm font-bold text-white">CyGen AI Assistant</h4>
                 <p className="text-[10px] text-white/60 flex items-center gap-1">
                   <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" /> Online
                 </p>

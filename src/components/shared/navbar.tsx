@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { Menu, X, Rocket, User, LogIn } from "lucide-react";
+import { Menu, X, Rocket, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -39,7 +39,7 @@ export function Navbar() {
             <Rocket className="w-6 h-6 text-primary" />
           </div>
           <span className="text-xl font-bold font-headline tracking-tighter text-white">
-            AETHER<span className="text-primary">CORE</span>
+            CYGEN<span className="text-primary"> DAWN</span>
           </span>
         </Link>
 

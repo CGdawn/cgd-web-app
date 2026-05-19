@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Rocket, Github, Mail, Lock, ArrowRight } from "lucide-react";
+import { Rocket, Github, Mail, Lock } from "lucide-react";
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
@@ -31,7 +31,7 @@ export default function LoginPage() {
               <Rocket className="w-6 h-6 text-primary" />
             </div>
             <span className="text-2xl font-bold font-headline tracking-tighter text-white">
-              AETHER<span className="text-primary">CORE</span>
+              CYGEN<span className="text-primary"> DAWN</span>
             </span>
           </Link>
           <h1 className="text-3xl font-bold text-white font-headline">Welcome Back</h1>

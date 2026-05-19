@@ -2,7 +2,7 @@ import type {Metadata} from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'AetherCore | CG DAWN Official',
+  title: 'CyGen Dawn | Creating Tomorrow Today',
   description: 'Cyber Generation Dawn (CG DAWN) - Creating Tomorrow Today. Futuristic solutions in Game Dev, AI, Robotics, and Web.',
 };
 
