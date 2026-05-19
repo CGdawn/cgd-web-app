@@ -1,14 +1,21 @@
+
 "use client";
 
 import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarFooter, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
-import { LayoutDashboard, Users, FolderKanban, GraduationCap, Briefcase, Settings, LogOut, Bell, Rocket, MessageSquare } from "lucide-react";
+import { 
+  LayoutDashboard, Users, FolderKanban, GraduationCap, 
+  Briefcase, Settings, LogOut, Bell, Rocket, MessageSquare,
+  FileText
+} from "lucide-react";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { useUser } from "@/firebase";
 
 const navItems = [
   { icon: LayoutDashboard, label: "Overview", href: "/dashboard" },
   { icon: FolderKanban, label: "Projects", href: "/dashboard/projects" },
+  { icon: FileText, label: "Posts", href: "/dashboard/posts" },
   { icon: Users, label: "Teams", href: "/dashboard/staff" },
   { icon: MessageSquare, label: "Messages", href: "/dashboard/messages" },
   { icon: GraduationCap, label: "Learning", href: "/dashboard/learning" },
@@ -17,6 +24,8 @@ const navItems = [
 ];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+  const { user } = useUser();
+
   return (
     <SidebarProvider>
       <div className="flex min-h-screen bg-[#0D0B10] w-full">
@@ -51,11 +60,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <div className="glass-dark p-4 rounded-2xl border border-white/5 space-y-4">
               <div className="flex items-center gap-3">
                 <Avatar className="w-10 h-10 border border-primary/20">
-                  <AvatarImage src="https://github.com/shadcn.png" />
-                  <AvatarFallback>DA</AvatarFallback>
+                  <AvatarImage src={user?.photoURL || ""} />
+                  <AvatarFallback className="bg-primary/10 text-primary">{user?.displayName?.[0] || "A"}</AvatarFallback>
                 </Avatar>
                 <div className="overflow-hidden">
-                  <p className="text-xs font-bold text-white truncate">Donald Attah</p>
+                  <p className="text-xs font-bold text-white truncate">{user?.displayName || "Donald Attah"}</p>
                   <p className="text-[10px] text-muted-foreground truncate">Super Admin</p>
                 </div>
               </div>
@@ -69,7 +78,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </Sidebar>
 
         <main className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
-          {/* Dashboard Header */}
           <header className="h-16 border-b border-white/5 glass-dark flex items-center justify-between px-8 z-10">
             <h2 className="text-sm font-bold font-headline text-white uppercase tracking-widest">Workspace Dashboard</h2>
             <div className="flex items-center gap-4">

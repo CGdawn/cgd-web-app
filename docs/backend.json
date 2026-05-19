@@ -1,72 +1,64 @@
 
 {
   "entities": {
-    "Product": {
-      "title": "Product",
-      "description": "A product available in the store",
+    "User": {
+      "title": "User",
+      "description": "Extended user profile information",
       "type": "object",
       "properties": {
-        "id": { "type": "string" },
-        "name": { "type": "string" },
-        "description": { "type": "string" },
-        "price": { "type": "number" },
-        "category": { "type": "string" },
-        "imageUrl": { "type": "string" },
-        "rating": { "type": "number" },
-        "reviews": { "type": "number" },
-        "features": { "type": "array", "items": { "type": "string" } }
-      },
-      "required": ["name", "price", "category"]
-    },
-    "CartItem": {
-      "title": "CartItem",
-      "description": "An item in the user's shopping cart",
-      "type": "object",
-      "properties": {
-        "productId": { "type": "string" },
-        "name": { "type": "string" },
-        "price": { "type": "number" },
-        "quantity": { "type": "number" },
-        "imageUrl": { "type": "string" }
-      },
-      "required": ["productId", "quantity"]
-    },
-    "Order": {
-      "title": "Order",
-      "description": "A processed customer order",
-      "type": "object",
-      "properties": {
-        "userId": { "type": "string" },
-        "items": { "type": "array", "items": { "$ref": "#/entities/CartItem" } },
-        "totalAmount": { "type": "number" },
-        "status": { "type": "string", "enum": ["pending", "completed", "cancelled"] },
+        "uid": { "type": "string" },
+        "displayName": { "type": "string" },
+        "username": { "type": "string" },
+        "email": { "type": "string" },
+        "avatar": { "type": "string" },
+        "bio": { "type": "string" },
+        "role": { "type": "string", "enum": ["admin", "author", "user"] },
         "createdAt": { "type": "string", "format": "date-time" }
       }
     },
-    "BlogPost": {
-      "title": "BlogPost",
+    "Post": {
+      "title": "Post",
       "description": "A blog article",
       "type": "object",
       "properties": {
         "title": { "type": "string" },
+        "slug": { "type": "string" },
         "excerpt": { "type": "string" },
         "content": { "type": "string" },
-        "author": { "type": "string" },
+        "authorId": { "type": "string" },
+        "authorName": { "type": "string" },
         "category": { "type": "string" },
-        "date": { "type": "string" },
         "imageUrl": { "type": "string" },
-        "likes": { "type": "number" }
+        "published": { "type": "boolean" },
+        "featured": { "type": "boolean" },
+        "likesCount": { "type": "number" },
+        "commentsCount": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" }
       }
     },
     "Comment": {
       "title": "Comment",
-      "description": "A user comment on a blog post",
+      "description": "A threaded user comment",
       "type": "object",
       "properties": {
+        "postId": { "type": "string" },
         "userId": { "type": "string" },
         "userName": { "type": "string" },
-        "text": { "type": "string" },
+        "userAvatar": { "type": "string" },
+        "content": { "type": "string" },
+        "parentId": { "type": "string" },
+        "likes": { "type": "number" },
         "createdAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "Reaction": {
+      "title": "Reaction",
+      "description": "User emoji reaction to a post",
+      "type": "object",
+      "properties": {
+        "postId": { "type": "string" },
+        "userId": { "type": "string" },
+        "type": { "type": "string", "enum": ["like", "love", "fire", "mindblown", "rocket", "genius"] }
       }
     }
   },
@@ -74,25 +66,21 @@
     "providers": ["google", "password"]
   },
   "firestore": {
-    "/products/{productId}": {
-      "schema": "Product",
-      "description": "Collection of store products"
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profiles"
     },
-    "/blogPosts/{postId}": {
-      "schema": "BlogPost",
-      "description": "Collection of blog articles"
+    "/posts/{postId}": {
+      "schema": "Post",
+      "description": "Blog articles"
     },
-    "/blogPosts/{postId}/comments/{commentId}": {
+    "/posts/{postId}/comments/{commentId}": {
       "schema": "Comment",
-      "description": "Comments on a specific blog post"
+      "description": "Threaded comments for a post"
     },
-    "/users/{userId}/cart/{productId}": {
-      "schema": "CartItem",
-      "description": "User's active shopping cart items"
-    },
-    "/users/{userId}/orders/{orderId}": {
-      "schema": "Order",
-      "description": "User's order history"
+    "/posts/{postId}/reactions/{userId}": {
+      "schema": "Reaction",
+      "description": "User reactions to posts"
     }
   }
 }
