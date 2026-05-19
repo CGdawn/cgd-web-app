@@ -8,6 +8,24 @@
       "imageHint": "cyberpunk city"
     },
     {
+      "id": "services-hero",
+      "description": "Futuristic digital grid network",
+      "imageUrl": "https://picsum.photos/seed/services-hero/1920/1080",
+      "imageHint": "digital grid"
+    },
+    {
+      "id": "careers-hero",
+      "description": "Futuristic workspace with glowing screens",
+      "imageUrl": "https://picsum.photos/seed/careers/1920/1080",
+      "imageHint": "tech office"
+    },
+    {
+      "id": "about-hero",
+      "description": "Futuristic laboratory setup",
+      "imageUrl": "https://picsum.photos/seed/about/1920/1080",
+      "imageHint": "future lab"
+    },
+    {
       "id": "game-dev",
       "description": "Professional gaming development environment",
       "imageUrl": "https://picsum.photos/seed/game-dev/800/600",
@@ -40,32 +58,38 @@
     {
       "id": "team-ceo",
       "description": "Donald Attah CEO portrait",
-      "imageUrl": "https://picsum.photos/seed/ceo/400/400",
+      "imageUrl": "https://picsum.photos/seed/ceo-donald/600/800",
       "imageHint": "executive portrait"
     },
     {
       "id": "team-cto",
       "description": "CTO Portrait",
-      "imageUrl": "https://picsum.photos/seed/cto/400/400",
+      "imageUrl": "https://picsum.photos/seed/cto-sarah/400/400",
       "imageHint": "tech leader"
     },
     {
       "id": "team-creative",
       "description": "Creative Director Portrait",
-      "imageUrl": "https://picsum.photos/seed/creative/400/400",
+      "imageUrl": "https://picsum.photos/seed/creative-marcus/400/400",
       "imageHint": "creative professional"
     },
     {
-      "id": "project1",
-      "description": "Futuristic UI interface",
-      "imageUrl": "https://picsum.photos/seed/project1/800/600",
-      "imageHint": "tech interface"
+      "id": "project-vr",
+      "description": "VR Museum Interface",
+      "imageUrl": "https://picsum.photos/seed/vr-project/800/600",
+      "imageHint": "vr museum"
     },
     {
-      "id": "about-hero",
-      "description": "Futuristic laboratory setup",
-      "imageUrl": "https://picsum.photos/seed/about/1920/1080",
-      "imageHint": "future lab"
+      "id": "project-game",
+      "description": "Action RPG screenshot",
+      "imageUrl": "https://picsum.photos/seed/rpg-game/800/600",
+      "imageHint": "action rpg"
+    },
+    {
+      "id": "project-dashboard",
+      "description": "Enterprise AI dashboard",
+      "imageUrl": "https://picsum.photos/seed/ai-dashboard/800/600",
+      "imageHint": "ai dashboard"
     }
   ]
 }

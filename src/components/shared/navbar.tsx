@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -29,7 +30,7 @@ export function Navbar() {
   return (
     <nav
       className={cn(
-        "fixed top-0 left-0 right-0 z-50 transition-all duration-300 px-6 lg:px-12",
+        "fixed top-0 left-0 right-0 z-[100] transition-all duration-300 px-6 lg:px-12",
         scrolled ? "py-4 glass border-b border-white/5" : "py-6 bg-transparent"
       )}
     >
