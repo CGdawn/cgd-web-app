@@ -1,0 +1,52 @@
+{
+  "placeholderImages": [
+    {
+      "id": "hero-bg",
+      "description": "Futuristic cyberpunk city with neon lights",
+      "imageUrl": "https://picsum.photos/seed/cyberpunk1/1920/1080",
+      "imageHint": "cyberpunk city"
+    },
+    {
+      "id": "game-dev",
+      "description": "Professional gaming development environment",
+      "imageUrl": "https://picsum.photos/seed/game-dev/800/600",
+      "imageHint": "game development"
+    },
+    {
+      "id": "animation",
+      "description": "3D character animation process",
+      "imageUrl": "https://picsum.photos/seed/anim/800/600",
+      "imageHint": "3d animation"
+    },
+    {
+      "id": "robotics",
+      "description": "Advanced robotic arm in a lab",
+      "imageUrl": "https://picsum.photos/seed/robot/800/600",
+      "imageHint": "robotics ai"
+    },
+    {
+      "id": "fullstack",
+      "description": "Code on multiple screens",
+      "imageUrl": "https://picsum.photos/seed/coding/800/600",
+      "imageHint": "software development"
+    },
+    {
+      "id": "vr-ar",
+      "description": "Person wearing VR headset",
+      "imageUrl": "https://picsum.photos/seed/vr/800/600",
+      "imageHint": "virtual reality"
+    },
+    {
+      "id": "team-ceo",
+      "description": "Donald Attah CEO portrait",
+      "imageUrl": "https://picsum.photos/seed/ceo/400/400",
+      "imageHint": "executive portrait"
+    },
+    {
+      "id": "project1",
+      "description": "Futuristic UI interface",
+      "imageUrl": "https://picsum.photos/seed/project1/800/600",
+      "imageHint": "tech interface"
+    }
+  ]
+}
