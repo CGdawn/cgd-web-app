@@ -1,9 +1,8 @@
-
 {
   "entities": {
     "User": {
       "title": "User",
-      "description": "Extended user profile information",
+      "description": "Production user profile with role-based attributes",
       "type": "object",
       "properties": {
         "uid": { "type": "string" },
@@ -12,13 +11,15 @@
         "email": { "type": "string" },
         "avatar": { "type": "string" },
         "bio": { "type": "string" },
-        "role": { "type": "string", "enum": ["admin", "author", "user"] },
+        "role": { "type": "string", "enum": ["admin", "author", "user", "staff"] },
+        "followers": { "type": "number" },
+        "following": { "type": "number" },
         "createdAt": { "type": "string", "format": "date-time" }
       }
     },
     "Post": {
       "title": "Post",
-      "description": "A blog article",
+      "description": "Fully interactive blog article",
       "type": "object",
       "properties": {
         "title": { "type": "string" },
@@ -38,7 +39,7 @@
     },
     "Comment": {
       "title": "Comment",
-      "description": "A threaded user comment",
+      "description": "Threaded community comment",
       "type": "object",
       "properties": {
         "postId": { "type": "string" },
@@ -53,17 +54,43 @@
     },
     "Reaction": {
       "title": "Reaction",
-      "description": "User emoji reaction to a post",
+      "description": "Emoji reaction record",
       "type": "object",
       "properties": {
         "postId": { "type": "string" },
         "userId": { "type": "string" },
         "type": { "type": "string", "enum": ["like", "love", "fire", "mindblown", "rocket", "genius"] }
       }
+    },
+    "Product": {
+      "title": "Product",
+      "description": "Marketplace item",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "price": { "type": "number" },
+        "category": { "type": "string" },
+        "description": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "features": { "type": "array", "items": { "type": "string" } },
+        "stock": { "type": "number" }
+      }
+    },
+    "Order": {
+      "title": "Order",
+      "description": "Customer order history",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "items": { "type": "array" },
+        "totalAmount": { "type": "number" },
+        "status": { "type": "string", "enum": ["pending", "processing", "shipped", "delivered"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      }
     }
   },
   "auth": {
-    "providers": ["google", "password"]
+    "providers": ["google", "github", "password"]
   },
   "firestore": {
     "/users/{userId}": {
@@ -76,11 +103,23 @@
     },
     "/posts/{postId}/comments/{commentId}": {
       "schema": "Comment",
-      "description": "Threaded comments for a post"
+      "description": "Post discussions"
     },
     "/posts/{postId}/reactions/{userId}": {
       "schema": "Reaction",
-      "description": "User reactions to posts"
+      "description": "User reactions"
+    },
+    "/products/{productId}": {
+      "schema": "Product",
+      "description": "Store inventory"
+    },
+    "/users/{userId}/cart/{productId}": {
+      "schema": "object",
+      "description": "Individual user cart items"
+    },
+    "/users/{userId}/orders/{orderId}": {
+      "schema": "Order",
+      "description": "User order records"
     }
   }
 }
