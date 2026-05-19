@@ -4,13 +4,15 @@
 import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarFooter, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
 import { 
   LayoutDashboard, Users, FolderKanban, GraduationCap, 
-  Briefcase, Settings, LogOut, Bell, Rocket, MessageSquare,
+  Briefcase, Settings, LogOut, Bell, MessageSquare,
   FileText
 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useUser } from "@/firebase";
+import { PlaceHolderImages } from "@/app/lib/placeholder-images";
 
 const navItems = [
   { icon: LayoutDashboard, label: "Overview", href: "/dashboard" },
@@ -25,18 +27,27 @@ const navItems = [
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { user } = useUser();
+  const logo = PlaceHolderImages.find(img => img.id === "site-logo");
 
   return (
     <SidebarProvider>
       <div className="flex min-h-screen bg-[#0D0B10] w-full">
         <Sidebar className="glass border-r border-white/5">
           <SidebarHeader className="p-6">
-            <Link href="/" className="flex items-center gap-2 group">
-              <div className="p-1.5 rounded-lg bg-primary/20">
-                <Rocket className="w-5 h-5 text-primary" />
-              </div>
-              <span className="font-headline font-bold text-lg tracking-tighter text-white">
-                CYGEN<span className="text-primary"> DAWN</span>
+            <Link href="/" className="flex items-center gap-3 group">
+              {logo && (
+                <div className="relative w-10 h-10 overflow-hidden rounded-lg">
+                  <Image 
+                    src={logo.imageUrl} 
+                    alt="CyGen Dawn Logo" 
+                    fill 
+                    className="object-contain"
+                    data-ai-hint={logo.imageHint}
+                  />
+                </div>
+              )}
+              <span className="font-headline font-bold text-lg tracking-tighter text-white uppercase">
+                CyGen<span className="text-primary"> Dawn</span>
               </span>
             </Link>
           </SidebarHeader>

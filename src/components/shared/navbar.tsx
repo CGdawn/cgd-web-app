@@ -1,10 +1,13 @@
+
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState, useEffect } from "react";
-import { Menu, X, Rocket, LogIn, ChevronDown } from "lucide-react";
+import { Menu, X, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { PlaceHolderImages } from "@/app/lib/placeholder-images";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,6 +34,8 @@ export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
+  const logo = PlaceHolderImages.find(img => img.id === "site-logo");
+
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
@@ -47,11 +52,19 @@ export function Navbar() {
       )}
     >
       <div className="max-w-7xl mx-auto flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2 group">
-          <div className="p-2 rounded-xl bg-primary/20 group-hover:bg-primary/40 transition-colors">
-            <Rocket className="w-6 h-6 text-primary" />
-          </div>
-          <span className="text-xl font-bold font-headline tracking-tighter text-white uppercase">
+        <Link href="/" className="flex items-center gap-3 group">
+          {logo && (
+            <div className="relative w-12 h-12 overflow-hidden rounded-lg">
+              <Image 
+                src={logo.imageUrl} 
+                alt="CyGen Dawn Logo" 
+                fill 
+                className="object-contain"
+                data-ai-hint={logo.imageHint}
+              />
+            </div>
+          )}
+          <span className="text-xl font-bold font-headline tracking-tighter text-white uppercase hidden sm:block">
             CyGen<span className="text-primary"> Dawn</span>
           </span>
         </Link>

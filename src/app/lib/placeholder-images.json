@@ -2,6 +2,12 @@
 {
   "placeholderImages": [
     {
+      "id": "site-logo",
+      "description": "CyGen Dawn Official Logo",
+      "imageUrl": "https://picsum.photos/seed/logo-cygen/200/200",
+      "imageHint": "tech logo"
+    },
+    {
       "id": "hero-bg",
       "description": "Futuristic cyberpunk city with neon lights",
       "imageUrl": "https://picsum.photos/seed/cyberpunk1/1920/1080",

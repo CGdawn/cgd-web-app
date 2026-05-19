@@ -1,15 +1,19 @@
+
 "use client";
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Rocket, User, Briefcase } from "lucide-react";
+import { User, Briefcase } from "lucide-react";
+import { PlaceHolderImages } from "@/app/lib/placeholder-images";
 
 export default function RegisterPage() {
   const [role, setRole] = useState("client");
+  const logo = PlaceHolderImages.find(img => img.id === "site-logo");
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-6 relative overflow-hidden">
@@ -17,17 +21,27 @@ export default function RegisterPage() {
       <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-secondary/10 rounded-full blur-[120px]" />
 
       <div className="w-full max-w-lg space-y-8 relative z-10">
-        <div className="text-center space-y-4">
-          <Link href="/" className="inline-flex items-center gap-2 group">
-            <div className="p-2 rounded-xl bg-primary/20 group-hover:bg-primary/40 transition-colors">
-              <Rocket className="w-6 h-6 text-primary" />
-            </div>
-            <span className="text-2xl font-bold font-headline tracking-tighter text-white">
-              CYGEN<span className="text-primary"> DAWN</span>
+        <div className="text-center space-y-6">
+          <Link href="/" className="inline-flex flex-col items-center gap-4 group">
+            {logo && (
+              <div className="relative w-20 h-20 overflow-hidden rounded-2xl glass p-2">
+                <Image 
+                  src={logo.imageUrl} 
+                  alt="CyGen Dawn Logo" 
+                  fill 
+                  className="object-contain p-2"
+                  data-ai-hint={logo.imageHint}
+                />
+              </div>
+            )}
+            <span className="text-2xl font-bold font-headline tracking-tighter text-white uppercase">
+              CyGen<span className="text-primary"> Dawn</span>
             </span>
           </Link>
-          <h1 className="text-3xl font-bold text-white font-headline">Join CyGen Dawn</h1>
-          <p className="text-muted-foreground">Start your journey with Cyber Generation Dawn.</p>
+          <div className="space-y-2">
+            <h1 className="text-3xl font-bold text-white font-headline">Join CyGen Dawn</h1>
+            <p className="text-muted-foreground">Start your journey with Cyber Generation Dawn.</p>
+          </div>
         </div>
 
         <div className="glass p-8 rounded-[2rem] border border-white/5 space-y-8">

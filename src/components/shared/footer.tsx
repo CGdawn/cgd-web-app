@@ -1,18 +1,32 @@
 
+"use client";
+
 import Link from "next/link";
-import { Rocket, Github, Twitter, Linkedin, Mail, Phone, MapPin } from "lucide-react";
+import Image from "next/image";
+import { Github, Twitter, Linkedin, Mail, Phone, MapPin } from "lucide-react";
+import { PlaceHolderImages } from "@/app/lib/placeholder-images";
 
 export function Footer() {
+  const logo = PlaceHolderImages.find(img => img.id === "site-logo");
+
   return (
     <footer className="bg-background border-t border-white/5 py-16 px-6">
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12">
         <div className="space-y-6">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="p-2 rounded-xl bg-primary/20">
-              <Rocket className="w-6 h-6 text-primary" />
-            </div>
-            <span className="text-xl font-bold font-headline tracking-tighter text-white">
-              CYGEN<span className="text-primary"> DAWN</span>
+          <Link href="/" className="flex items-center gap-3">
+            {logo && (
+              <div className="relative w-10 h-10 overflow-hidden rounded-lg">
+                <Image 
+                  src={logo.imageUrl} 
+                  alt="CyGen Dawn Logo" 
+                  fill 
+                  className="object-contain"
+                  data-ai-hint={logo.imageHint}
+                />
+              </div>
+            )}
+            <span className="text-xl font-bold font-headline tracking-tighter text-white uppercase">
+              CyGen<span className="text-primary"> Dawn</span>
             </span>
           </Link>
           <p className="text-muted-foreground text-sm leading-relaxed">
