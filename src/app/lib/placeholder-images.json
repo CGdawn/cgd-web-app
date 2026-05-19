@@ -4,7 +4,7 @@
     {
       "id": "site-logo",
       "description": "CyGen Dawn Official Logo",
-      "imageUrl": "/logo.png",
+      "imageUrl": "/logo.jpg",
       "imageHint": "company logo"
     },
     {
@@ -88,7 +88,7 @@
     {
       "id": "team-ceo",
       "description": "Donald Attah CEO portrait",
-      "imageUrl": "https://picsum.photos/seed/ceo-donald/600/800",
+      "imageUrl": "/ceo.jpg",
       "imageHint": "executive portrait"
     },
     {
