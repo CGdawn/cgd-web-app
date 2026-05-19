@@ -53,7 +53,7 @@ export function Navbar() {
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <Link href="/" className="flex items-center gap-4 group">
           {logo && (
-            <div className="relative w-16 h-16 sm:w-20 sm:h-20">
+            <div className="relative w-12 h-12 overflow-hidden rounded-lg">
               <Image 
                 src={logo.imageUrl} 
                 alt="CyGen Dawn Logo" 
