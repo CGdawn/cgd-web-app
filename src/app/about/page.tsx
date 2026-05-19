@@ -33,18 +33,25 @@ const team = [
     skills: ["AI Strategy", "Game Dev", "Leadership"]
   },
   { 
-    name: "Sarah Chen", 
-    role: "CTO", 
+    name: "Balogun Adeyemo", 
+    role: "Chief Technology Officer (CTO)", 
     img: "team-cto", 
-    bio: "Expert in scalable cloud systems and AI-driven infrastructure architecture.",
-    skills: ["Cloud Ops", "Python", "Scalability"]
+    bio: "Expert in scalable cloud systems, AI infrastructure, and high-performance computation.",
+    skills: ["Cloud Ops", "AI Architecture", "Scalability"]
   },
   { 
-    name: "Marcus Thorne", 
-    role: "Creative Director", 
+    name: "Scofield Idehen", 
+    role: "Director of Operations", 
     img: "team-creative", 
-    bio: "Award-winning visual storyteller bridging imagination and high-fidelity digital art.",
-    skills: ["3D Art", "UX Design", "Cinematics"]
+    bio: "Strategist focused on optimizing workflows and scaling CyGen Dawn's global footprint.",
+    skills: ["Strategic Ops", "Management", "Growth"]
+  },
+  { 
+    name: "Adedokun Aina Olabisi", 
+    role: "Head of Projects", 
+    img: "team-ops", 
+    bio: "Master of project lifecycles, ensuring every digital masterpiece is delivered to perfection.",
+    skills: ["Project Mgmt", "Quality Assurance", "Agile"]
   },
 ];
 
@@ -88,7 +95,7 @@ export default function AboutPage() {
               The <span className="text-gradient">Dawn</span> of a New <br /> Digital Era.
             </h1>
             <p className="text-muted-foreground text-xl max-w-2xl mx-auto leading-relaxed mt-8">
-              Based in Lagos, CyGen Dawn is a technological powerhouse at the intersection of 
+              Based in Lagos, Cyber Generation Dawn is a technological powerhouse at the intersection of 
               AI, Robotics, and Immersive Entertainment.
             </p>
             <div className="flex justify-center mt-12">
@@ -127,9 +134,9 @@ export default function AboutPage() {
           </div>
           <div className="glass-dark p-8 md:p-16 rounded-[3rem] border-white/5 space-y-8 text-lg leading-relaxed text-muted-foreground">
             <p>
-              Founded by <span className="text-white font-bold">Donald Attah</span>, CyGen Dawn began as a response 
+              Founded by <span className="text-white font-bold">Donald Attah</span>, Cyber Generation Dawn began as a response 
               to the rapidly evolving global tech landscape. Recognizing the immense talent within 
-              Nigeria and across the continent, CyGen Dawn was established to bridge the gap 
+              Nigeria and across the continent, CG DAWN was established to bridge the gap 
               between local innovation and global standards.
             </p>
             <p>
@@ -249,13 +256,13 @@ export default function AboutPage() {
             <h2 className="text-sm font-bold uppercase tracking-[0.3em] text-secondary">Leadership</h2>
             <h3 className="text-4xl font-bold font-headline text-white">The Visionary Core</h3>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {team.map((member, i) => (
               <Card key={i} className="glass border-white/5 overflow-hidden group hover:border-primary/20 transition-all duration-500 rounded-[3rem]">
                 <CardContent className="p-0">
                   <div className="relative h-96 w-full overflow-hidden">
                     <Image 
-                      src={PlaceHolderImages.find(img => img.id === member.img)?.imageUrl || ""} 
+                      src={PlaceHolderImages.find(img => img.id === member.img)?.imageUrl || `https://picsum.photos/seed/team-${i}/600/800`} 
                       alt={member.name} 
                       fill 
                       className="object-cover transition-transform duration-700 group-hover:scale-105"
@@ -264,11 +271,11 @@ export default function AboutPage() {
                   </div>
                   <div className="p-8 space-y-4">
                     <div>
-                      <h4 className="text-2xl font-bold text-white font-headline">{member.name}</h4>
-                      <p className="text-primary font-bold text-xs uppercase tracking-widest mt-1">{member.role}</p>
+                      <h4 className="text-xl font-bold text-white font-headline">{member.name}</h4>
+                      <p className="text-primary font-bold text-[10px] uppercase tracking-widest mt-1">{member.role}</p>
                     </div>
-                    <p className="text-muted-foreground text-sm leading-relaxed">{member.bio}</p>
-                    <div className="flex gap-2 pt-4">
+                    <p className="text-muted-foreground text-xs leading-relaxed line-clamp-3">{member.bio}</p>
+                    <div className="flex flex-wrap gap-2 pt-4">
                       {member.skills.map(skill => (
                         <Badge key={skill} variant="secondary" className="bg-white/5 text-[8px] uppercase">{skill}</Badge>
                       ))}
