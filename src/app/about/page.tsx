@@ -40,6 +40,13 @@ const team = [
     skills: ["Cloud Ops", "AI Architecture", "Scalability"]
   },
   { 
+    name: "Miracle Aderinkola", 
+    role: "Chief Marketing Officer (CMO)", 
+    img: "team-ops", 
+    bio: "Strategic growth expert focused on scaling the CyGen Dawn brand across global markets.",
+    skills: ["Growth Hacking", "Brand Strategy", "Marketing"]
+  },
+  { 
     name: "Scofield Idehen", 
     role: "Director of Operations", 
     img: "team-creative", 
@@ -52,6 +59,41 @@ const team = [
     img: "team-ops", 
     bio: "Master of project lifecycles, ensuring every digital masterpiece is delivered to perfection.",
     skills: ["Project Mgmt", "Quality Assurance", "Agile"]
+  },
+  { 
+    name: "Chimuanya Okoye", 
+    role: "Creative Director", 
+    img: "team-creative", 
+    bio: "The creative force behind our visual storytelling and immersive digital aesthetics.",
+    skills: ["Art Direction", "Visual Design", "Creative Strategy"]
+  },
+  { 
+    name: "Damilare Ajetunmobi", 
+    role: "Lead Developer", 
+    img: "fullstack", 
+    bio: "Architecture expert leading our technical implementation across core web and mobile platforms.",
+    skills: ["Fullstack", "Node.js", "System Design"]
+  },
+  { 
+    name: "Aganano Joshua", 
+    role: "FinTech & Software Developer", 
+    img: "fullstack", 
+    bio: "Specialist in blockchain integration and financial software solutions for digital economies.",
+    skills: ["FinTech", "Web3", "Backend Dev"]
+  },
+  { 
+    name: "Vanya", 
+    role: "3D Artist", 
+    img: "animation", 
+    bio: "Crafting the characters and environments that bring our virtual worlds to life.",
+    skills: ["3D Modeling", "Texturing", "Blender"]
+  },
+  { 
+    name: "Valencia Idehen", 
+    role: "Legal Advisor", 
+    img: "team-ops", 
+    bio: "Ensuring all our technological innovations operate within global legal frameworks.",
+    skills: ["Tech Law", "Intellectual Property", "Compliance"]
   },
 ];
 
@@ -253,14 +295,14 @@ export default function AboutPage() {
       <section className="py-24 px-6 relative">
         <div className="max-w-7xl mx-auto space-y-16">
           <div className="text-center space-y-4">
-            <h2 className="text-sm font-bold uppercase tracking-[0.3em] text-secondary">Leadership</h2>
-            <h3 className="text-4xl font-bold font-headline text-white">The Visionary Core</h3>
+            <h2 className="text-sm font-bold uppercase tracking-[0.3em] text-secondary">The Core Team</h2>
+            <h3 className="text-4xl font-bold font-headline text-white">Our Experts</h3>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             {team.map((member, i) => (
               <Card key={i} className="glass border-white/5 overflow-hidden group hover:border-primary/20 transition-all duration-500 rounded-[3rem]">
                 <CardContent className="p-0">
-                  <div className="relative h-96 w-full overflow-hidden">
+                  <div className="relative h-72 w-full overflow-hidden">
                     <Image 
                       src={PlaceHolderImages.find(img => img.id === member.img)?.imageUrl || `https://picsum.photos/seed/team-${i}/600/800`} 
                       alt={member.name} 
