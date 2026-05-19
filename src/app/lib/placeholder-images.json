@@ -26,6 +26,18 @@
       "imageHint": "future lab"
     },
     {
+      "id": "portfolio-hero",
+      "description": "Immersive digital gallery",
+      "imageUrl": "https://picsum.photos/seed/gallery/1920/1080",
+      "imageHint": "digital art"
+    },
+    {
+      "id": "contact-hero",
+      "description": "Glowing digital communication network",
+      "imageUrl": "https://picsum.photos/seed/contact/1920/1080",
+      "imageHint": "network glow"
+    },
+    {
       "id": "game-dev",
       "description": "Professional gaming development environment",
       "imageUrl": "https://picsum.photos/seed/game-dev/800/600",
@@ -90,6 +102,18 @@
       "description": "Enterprise AI dashboard",
       "imageUrl": "https://picsum.photos/seed/ai-dashboard/800/600",
       "imageHint": "ai dashboard"
+    },
+    {
+      "id": "project-vem",
+      "description": "3D Real Estate Visualization",
+      "imageUrl": "https://picsum.photos/seed/vem/800/600",
+      "imageHint": "3d architecture"
+    },
+    {
+      "id": "project-edu",
+      "description": "Educational platform UI",
+      "imageUrl": "https://picsum.photos/seed/eduplatform/800/600",
+      "imageHint": "learning app"
     }
   ]
 }
