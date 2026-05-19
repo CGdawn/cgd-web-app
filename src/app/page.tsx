@@ -1,3 +1,4 @@
+
 import { Navbar } from "@/components/shared/navbar";
 import { Footer } from "@/components/shared/footer";
 import { Hero } from "@/components/home/hero";
@@ -10,7 +11,7 @@ import { PlaceHolderImages } from "@/app/lib/placeholder-images";
 import Link from "next/link";
 
 export default function Home() {
-  const projectImg = PlaceHolderImages.find(img => img.id === "project1");
+  const projectImg = PlaceHolderImages.find(img => img.id === "project-game");
 
   return (
     <main className="min-h-screen bg-background text-white selection:bg-primary/30">
@@ -71,7 +72,7 @@ export default function Home() {
           <h2 className="text-3xl md:text-5xl font-bold font-headline">Join the Revolution</h2>
           <p className="text-muted-foreground text-lg">
             We are always looking for visionary developers, artists, and engineers. 
-            Build the future of Lagos tech with CG DAWN.
+            Build the future of Lagos tech with CyGen Dawn.
           </p>
           <Link href="/careers">
             <Button size="lg" className="bg-primary hover:bg-primary/90 text-white rounded-full px-12 h-14">

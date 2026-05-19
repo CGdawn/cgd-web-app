@@ -6,11 +6,12 @@ import { Footer } from "@/components/shared/footer";
 import { AIAssistant } from "@/components/shared/ai-assistant";
 import { PlaceHolderImages } from "@/app/lib/placeholder-images";
 import Image from "next/image";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { 
   Rocket, Target, Eye, Users, ShieldCheck, Sparkles, 
-  ArrowRight, Linkedin, Twitter, Github, Heart, Globe, 
-  Zap, Award
+  ArrowRight, Linkedin, Twitter, Heart, Globe, 
+  Zap, Award, GraduationCap, Bot
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -126,7 +127,7 @@ export default function AboutPage() {
           </div>
           <div className="glass-dark p-8 md:p-16 rounded-[3rem] border-white/5 space-y-8 text-lg leading-relaxed text-muted-foreground">
             <p>
-              Founded by <span className="text-white font-bold">Donald Attah</span>, Cyber Generation Dawn began as a response 
+              Founded by <span className="text-white font-bold">Donald Attah</span>, CyGen Dawn began as a response 
               to the rapidly evolving global tech landscape. Recognizing the immense talent within 
               Nigeria and across the continent, CyGen Dawn was established to bridge the gap 
               between local innovation and global standards.
