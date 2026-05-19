@@ -1,3 +1,4 @@
+
 import Link from "next/link";
 import { Rocket, Github, Twitter, Linkedin, Mail, Phone, MapPin } from "lucide-react";
 
@@ -36,19 +37,20 @@ export function Footer() {
             <li><Link href="/about" className="hover:text-primary transition-colors">About Us</Link></li>
             <li><Link href="/services" className="hover:text-primary transition-colors">Services</Link></li>
             <li><Link href="/portfolio" className="hover:text-primary transition-colors">Portfolio</Link></li>
+            <li><Link href="/blog" className="hover:text-primary transition-colors">Blog & News</Link></li>
+            <li><Link href="/store" className="hover:text-primary transition-colors">Official Store</Link></li>
             <li><Link href="/careers" className="hover:text-primary transition-colors">Careers</Link></li>
-            <li><Link href="/blog" className="hover:text-primary transition-colors">News & Blog</Link></li>
           </ul>
         </div>
 
         <div>
           <h4 className="font-headline font-bold mb-6 text-white uppercase tracking-widest text-xs">Services</h4>
           <ul className="space-y-4 text-sm text-muted-foreground">
-            <li><Link href="#" className="hover:text-primary transition-colors">Game Development</Link></li>
-            <li><Link href="#" className="hover:text-primary transition-colors">AI & Robotics</Link></li>
-            <li><Link href="#" className="hover:text-primary transition-colors">Animation (2D/3D)</Link></li>
-            <li><Link href="#" className="hover:text-primary transition-colors">VR/AR Solutions</Link></li>
-            <li><Link href="#" className="hover:text-primary transition-colors">Fullstack Web</Link></li>
+            <li><Link href="/services" className="hover:text-primary transition-colors">Game Development</Link></li>
+            <li><Link href="/services" className="hover:text-primary transition-colors">AI & Robotics</Link></li>
+            <li><Link href="/services" className="hover:text-primary transition-colors">Animation (2D/3D)</Link></li>
+            <li><Link href="/services" className="hover:text-primary transition-colors">VR/AR Solutions</Link></li>
+            <li><Link href="/services" className="hover:text-primary transition-colors">Fullstack Web</Link></li>
           </ul>
         </div>
 

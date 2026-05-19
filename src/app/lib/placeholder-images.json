@@ -38,6 +38,18 @@
       "imageHint": "network glow"
     },
     {
+      "id": "blog-hero",
+      "description": "Digital news stream with floating data",
+      "imageUrl": "https://picsum.photos/seed/blog/1920/1080",
+      "imageHint": "tech news"
+    },
+    {
+      "id": "store-hero",
+      "description": "Futuristic digital marketplace",
+      "imageUrl": "https://picsum.photos/seed/store/1920/1080",
+      "imageHint": "digital store"
+    },
+    {
       "id": "game-dev",
       "description": "Professional gaming development environment",
       "imageUrl": "https://picsum.photos/seed/game-dev/800/600",
@@ -114,6 +126,42 @@
       "description": "Educational platform UI",
       "imageUrl": "https://picsum.photos/seed/eduplatform/800/600",
       "imageHint": "learning app"
+    },
+    {
+      "id": "blog-1",
+      "description": "AI brain glowing concept",
+      "imageUrl": "https://picsum.photos/seed/blog-ai/800/500",
+      "imageHint": "ai future"
+    },
+    {
+      "id": "blog-2",
+      "description": "Space exploration portal",
+      "imageUrl": "https://picsum.photos/seed/blog-space/800/500",
+      "imageHint": "future tech"
+    },
+    {
+      "id": "blog-3",
+      "description": "Robotic hand and human hand",
+      "imageUrl": "https://picsum.photos/seed/blog-robot/800/500",
+      "imageHint": "human robotics"
+    },
+    {
+      "id": "prod-1",
+      "description": "CyGen Gaming Jersey",
+      "imageUrl": "https://picsum.photos/seed/prod-jersey/600/600",
+      "imageHint": "gaming jersey"
+    },
+    {
+      "id": "prod-2",
+      "description": "Unreal Engine Assets Pack",
+      "imageUrl": "https://picsum.photos/seed/prod-assets/600/600",
+      "imageHint": "digital assets"
+    },
+    {
+      "id": "prod-3",
+      "description": "VR Headset Premium",
+      "imageUrl": "https://picsum.photos/seed/prod-vr/600/600",
+      "imageHint": "vr hardware"
     }
   ]
 }
