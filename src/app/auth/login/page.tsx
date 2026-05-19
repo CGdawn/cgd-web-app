@@ -32,7 +32,7 @@ export default function LoginPage() {
         <div className="text-center space-y-6">
           <Link href="/" className="inline-flex flex-col items-center gap-4 group">
             {logo && (
-              <div className="relative w-24 h-24 overflow-hidden rounded-2xl glass p-2">
+              <div className="relative w-32 h-32 overflow-hidden rounded-2xl glass p-2">
                 <Image 
                   src={logo.imageUrl} 
                   alt="CyGen Dawn Logo" 

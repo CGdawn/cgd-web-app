@@ -19,6 +19,7 @@ const mainLinks = [
   { name: "Home", href: "/" },
   { name: "About", href: "/about" },
   { name: "Services", href: "/services" },
+  { name: "Contact", href: "/contact" },
 ];
 
 const dropdownLinks = [
@@ -27,8 +28,6 @@ const dropdownLinks = [
   { name: "Store", href: "/store" },
   { name: "Careers", href: "/careers" },
 ];
-
-const contactLink = { name: "Contact", href: "/contact" };
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -52,9 +51,9 @@ export function Navbar() {
       )}
     >
       <div className="max-w-7xl mx-auto flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-3 group">
+        <Link href="/" className="flex items-center gap-4 group">
           {logo && (
-            <div className="relative w-12 h-12">
+            <div className="relative w-16 h-16 sm:w-20 sm:h-20">
               <Image 
                 src={logo.imageUrl} 
                 alt="CyGen Dawn Logo" 
@@ -64,7 +63,7 @@ export function Navbar() {
               />
             </div>
           )}
-          <span className="text-xl font-bold font-headline tracking-tighter text-white uppercase hidden sm:block">
+          <span className="text-xl font-bold font-headline tracking-tighter text-white uppercase hidden lg:block">
             CyGen<span className="text-primary"> Dawn</span>
           </span>
         </Link>
@@ -98,13 +97,6 @@ export function Navbar() {
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
-
-          <Link
-            href={contactLink.href}
-            className="text-sm font-medium text-white/70 hover:text-white transition-colors"
-          >
-            {contactLink.name}
-          </Link>
         </div>
 
         {/* Auth Buttons */}
@@ -159,14 +151,6 @@ export function Navbar() {
                 </Link>
               ))}
             </div>
-
-            <Link
-              href={contactLink.href}
-              className="text-lg font-medium text-white/80 pt-2 border-t border-white/5"
-              onClick={() => setIsOpen(false)}
-            >
-              {contactLink.name}
-            </Link>
 
             <div className="grid grid-cols-2 gap-4 mt-4 pt-6 border-t border-white/5">
               <Link href="/auth/login" onClick={() => setIsOpen(false)}>

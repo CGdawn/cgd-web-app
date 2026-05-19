@@ -13,9 +13,9 @@ export function Footer() {
     <footer className="bg-background border-t border-white/5 py-16 px-6">
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12">
         <div className="space-y-6">
-          <Link href="/" className="flex items-center gap-3">
+          <Link href="/" className="flex items-center gap-4">
             {logo && (
-              <div className="relative w-12 h-12">
+              <div className="relative w-20 h-20">
                 <Image 
                   src={logo.imageUrl} 
                   alt="CyGen Dawn Logo" 
