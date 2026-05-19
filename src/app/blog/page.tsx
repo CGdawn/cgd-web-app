@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Navbar } from "@/components/shared/navbar";
 import { Footer } from "@/components/shared/footer";
 import { AIAssistant } from "@/components/shared/ai-assistant";
@@ -10,79 +10,68 @@ import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Calendar, Clock, User, ArrowRight, Search, 
-  Tag, Share2, MessageCircle, Sparkles, TrendingUp
+  Tag, Share2, MessageCircle, Sparkles, TrendingUp,
+  Heart, Loader2, Send
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { useFirestore, useCollection, useUser } from "@/firebase";
+import { collection, doc, setDoc, updateDoc, increment, serverTimestamp, query, orderBy } from "firebase/firestore";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 const categories = ["All", "Tech", "Gaming", "AI", "Robotics", "Company"];
 
-const posts = [
-  {
-    id: 1,
-    title: "The Future of AI in Lagos: A Technological Renaissance",
-    excerpt: "Exploring how artificial intelligence is transforming the business landscape in Nigeria's commercial capital.",
-    category: "AI",
-    author: "Donald Attah",
-    date: "May 12, 2024",
-    readTime: "8 min",
-    img: "blog-1",
-    featured: true
-  },
-  {
-    id: 2,
-    title: "Unreal Engine 5: Beyond Gaming",
-    excerpt: "How we use UE5's Nanite and Lumen for cinematic architecture and interactive training simulations.",
-    category: "Tech",
-    author: "Sarah Chen",
-    date: "May 10, 2024",
-    readTime: "6 min",
-    img: "project-vem",
-  },
-  {
-    id: 3,
-    title: "Building Immersive Worlds: Our Game Dev Process",
-    excerpt: "A behind-the-scenes look at the development lifecycle of 'Dawn of Titans' and our proprietary engine tools.",
-    category: "Gaming",
-    author: "Marcus Thorne",
-    date: "May 08, 2024",
-    readTime: "12 min",
-    img: "project-game",
-  },
-  {
-    id: 4,
-    title: "Human-Robot Collaboration in Modern Industry",
-    excerpt: "Why the next decade will be defined by how well we integrate AI-driven robotics into daily workflows.",
-    category: "Robotics",
-    author: "Donald Attah",
-    date: "May 05, 2024",
-    readTime: "10 min",
-    img: "blog-3",
-  },
-  {
-    id: 5,
-    title: "CyGen Dawn: Our Q1 2024 Roadmap Update",
-    excerpt: "A look at our upcoming projects, global partnerships, and the growth of our Next-Gen mentorship program.",
-    category: "Company",
-    author: "Sarah Chen",
-    date: "May 01, 2024",
-    readTime: "5 min",
-    img: "blog-2",
-  }
-];
-
 export default function BlogPage() {
+  const { user } = useUser();
+  const db = useFirestore();
   const [activeCategory, setActiveCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedPost, setSelectedPost] = useState<any>(null);
+  const [commentText, setCommentText] = useState("");
 
-  const filteredPosts = posts.filter(post => 
-    (activeCategory === "All" || post.category === activeCategory) &&
-    (post.title.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
+  // Fetch Posts
+  const postsQuery = useMemo(() => collection(db, "blogPosts"), [db]);
+  const { data: posts, loading: postsLoading } = useCollection(postsQuery);
+
+  const filteredPosts = useMemo(() => {
+    return posts?.filter(post => 
+      (activeCategory === "All" || post.category === activeCategory) &&
+      (post.title.toLowerCase().includes(searchQuery.toLowerCase()))
+    ) || [];
+  }, [posts, activeCategory, searchQuery]);
+
+  const featuredPost = useMemo(() => posts?.find(p => p.featured), [posts]);
+
+  async function handleLike(postId: string) {
+    if (!user) return;
+    const postRef = doc(db, "blogPosts", postId);
+    updateDoc(postRef, {
+      likes: increment(1)
+    });
+  }
+
+  async function handleAddComment(postId: string) {
+    if (!user || !commentText.trim()) return;
+
+    const commentRef = doc(collection(db, "blogPosts", postId, "comments"));
+    await setDoc(commentRef, {
+      userId: user.uid,
+      userName: user.displayName || "User",
+      text: commentText,
+      createdAt: serverTimestamp()
+    });
+    setCommentText("");
+  }
 
   const heroImage = PlaceHolderImages.find(img => img.id === "blog-hero");
-  const featuredPost = posts.find(p => p.featured);
 
   return (
     <main className="min-h-screen bg-background text-white">
@@ -129,9 +118,9 @@ export default function BlogPage() {
               animate={{ opacity: 1, scale: 1 }}
               className="group glass rounded-[3.5rem] overflow-hidden border border-white/10 grid grid-cols-1 lg:grid-cols-2"
             >
-              <div className="relative h-96 lg:h-full">
+              <div className="relative h-96 lg:h-full cursor-pointer" onClick={() => setSelectedPost(featuredPost)}>
                 <Image 
-                  src={PlaceHolderImages.find(img => img.id === featuredPost.img)?.imageUrl || ""} 
+                  src={PlaceHolderImages.find(img => img.id === featuredPost.img)?.imageUrl || featuredPost.imageUrl || ""} 
                   alt={featuredPost.title}
                   fill
                   className="object-cover transition-transform duration-700 group-hover:scale-105"
@@ -147,14 +136,14 @@ export default function BlogPage() {
                   <span className="flex items-center gap-1"><User className="w-3 h-3" /> {featuredPost.author}</span>
                   <span className="flex items-center gap-1"><Calendar className="w-3 h-3" /> {featuredPost.date}</span>
                 </div>
-                <h2 className="text-3xl md:text-4xl font-bold font-headline leading-tight group-hover:text-primary transition-colors">
+                <h2 className="text-3xl md:text-4xl font-bold font-headline leading-tight group-hover:text-primary transition-colors cursor-pointer" onClick={() => setSelectedPost(featuredPost)}>
                   {featuredPost.title}
                 </h2>
                 <p className="text-muted-foreground text-lg leading-relaxed">
                   {featuredPost.excerpt}
                 </p>
                 <div className="pt-6">
-                  <Button className="bg-white text-black hover:bg-white/90 rounded-full px-8 h-12">
+                  <Button onClick={() => setSelectedPost(featuredPost)} className="bg-white text-black hover:bg-white/90 rounded-full px-8 h-12">
                     Read Full Story <ArrowRight className="ml-2 w-4 h-4" />
                   </Button>
                 </div>
@@ -195,63 +184,155 @@ export default function BlogPage() {
 
       {/* Blog Grid */}
       <section className="py-24 px-6">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          <AnimatePresence mode="popLayout">
-            {filteredPosts.map((post) => (
-              <motion.article
-                key={post.id}
-                layout
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                className="group glass rounded-[2.5rem] border border-white/5 overflow-hidden flex flex-col hover:border-primary/20 transition-all"
-              >
-                <div className="relative aspect-video overflow-hidden">
-                  <Image 
-                    src={PlaceHolderImages.find(img => img.id === post.img)?.imageUrl || ""} 
-                    alt={post.title} 
-                    fill 
-                    className="object-cover transition-transform duration-700 group-hover:scale-110"
-                  />
-                  <div className="absolute top-4 left-4">
-                    <Badge className="bg-black/40 backdrop-blur-md border-white/10 text-white">{post.category}</Badge>
-                  </div>
-                </div>
-                <div className="p-8 space-y-4 flex-1 flex flex-col">
-                  <div className="flex items-center gap-4 text-[10px] text-muted-foreground uppercase tracking-widest">
-                    <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {post.readTime} Read</span>
-                    <span>{post.date}</span>
-                  </div>
-                  <h3 className="text-xl font-bold font-headline text-white group-hover:text-primary transition-colors line-clamp-2">
-                    {post.title}
-                  </h3>
-                  <p className="text-muted-foreground text-sm leading-relaxed line-clamp-3">
-                    {post.excerpt}
-                  </p>
-                  <div className="pt-4 mt-auto flex items-center justify-between border-t border-white/5">
-                    <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-[8px] font-bold text-primary">
-                        {post.author[0]}
+        <div className="max-w-7xl mx-auto">
+          {postsLoading ? (
+             <div className="flex flex-col items-center justify-center py-20 gap-4">
+               <Loader2 className="w-12 h-12 text-primary animate-spin" />
+               <p className="text-muted-foreground font-headline uppercase tracking-widest text-xs">Loading Knowledge Base...</p>
+             </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <AnimatePresence mode="popLayout">
+                {filteredPosts.map((post) => (
+                  <motion.article
+                    key={post.id}
+                    layout
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    className="group glass rounded-[2.5rem] border border-white/5 overflow-hidden flex flex-col hover:border-primary/20 transition-all cursor-pointer"
+                    onClick={() => setSelectedPost(post)}
+                  >
+                    <div className="relative aspect-video overflow-hidden">
+                      <Image 
+                        src={PlaceHolderImages.find(img => img.id === post.img)?.imageUrl || post.imageUrl || ""} 
+                        alt={post.title} 
+                        fill 
+                        className="object-cover transition-transform duration-700 group-hover:scale-110"
+                      />
+                      <div className="absolute top-4 left-4">
+                        <Badge className="bg-black/40 backdrop-blur-md border-white/10 text-white">{post.category}</Badge>
                       </div>
-                      <span className="text-xs text-white/70">{post.author}</span>
                     </div>
-                    <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary">
-                      <Share2 className="w-4 h-4" />
-                    </Button>
+                    <div className="p-8 space-y-4 flex-1 flex flex-col">
+                      <div className="flex items-center gap-4 text-[10px] text-muted-foreground uppercase tracking-widest">
+                        <span>{post.date}</span>
+                        <span className="flex items-center gap-1"><Heart className="w-3 h-3 text-red-400" /> {post.likes || 0}</span>
+                      </div>
+                      <h3 className="text-xl font-bold font-headline text-white group-hover:text-primary transition-colors line-clamp-2">
+                        {post.title}
+                      </h3>
+                      <p className="text-muted-foreground text-sm leading-relaxed line-clamp-3">
+                        {post.excerpt}
+                      </p>
+                      <div className="pt-4 mt-auto flex items-center justify-between border-t border-white/5">
+                        <div className="flex items-center gap-2">
+                          <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-[8px] font-bold text-primary">
+                            {post.author[0]}
+                          </div>
+                          <span className="text-xs text-white/70">{post.author}</span>
+                        </div>
+                        <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary">
+                          <ArrowRight className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </motion.article>
+                ))}
+              </AnimatePresence>
+            </div>
+          )}
+
+          {!postsLoading && filteredPosts.length === 0 && (
+            <div className="text-center py-20 space-y-4">
+              <Sparkles className="w-12 h-12 text-muted-foreground mx-auto opacity-20" />
+              <p className="text-muted-foreground">No articles found matching your criteria.</p>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Blog Detail Dialog */}
+      <Dialog open={!!selectedPost} onOpenChange={() => setSelectedPost(null)}>
+        <DialogContent className="glass border-white/10 text-white max-w-4xl max-h-[90vh] overflow-y-auto p-0">
+          {selectedPost && (
+            <div className="flex flex-col">
+              <div className="relative h-64 md:h-96 w-full">
+                <Image 
+                  src={PlaceHolderImages.find(img => img.id === selectedPost.img)?.imageUrl || selectedPost.imageUrl || ""} 
+                  alt={selectedPost.title} 
+                  fill 
+                  className="object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-background to-transparent" />
+                <div className="absolute bottom-8 left-8 right-8">
+                  <Badge className="bg-primary/20 text-primary border-primary/20 mb-4">{selectedPost.category}</Badge>
+                  <h2 className="text-3xl md:text-5xl font-bold font-headline leading-tight">{selectedPost.title}</h2>
+                </div>
+              </div>
+
+              <div className="p-8 md:p-12 space-y-12">
+                <div className="flex items-center justify-between text-muted-foreground text-sm border-b border-white/5 pb-8">
+                  <div className="flex items-center gap-6">
+                    <span className="flex items-center gap-2"><User className="w-4 h-4" /> {selectedPost.author}</span>
+                    <span className="flex items-center gap-2"><Calendar className="w-4 h-4" /> {selectedPost.date}</span>
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    className="glass rounded-full gap-2 border-white/10 hover:bg-red-400/10 hover:text-red-400"
+                    onClick={() => handleLike(selectedPost.id)}
+                  >
+                    <Heart className="w-4 h-4" /> {selectedPost.likes || 0} Likes
+                  </Button>
+                </div>
+
+                <div className="prose prose-invert max-w-none text-muted-foreground text-lg leading-relaxed">
+                  {selectedPost.content || selectedPost.excerpt}
+                  <p className="mt-6">
+                    Technology is evolving at an unprecedented pace. At CyGen Dawn, we believe in staying 
+                    ahead of the curve by constant research and development in AI and immersive gaming. 
+                    This article explored the fundamental shifts we are seeing in the Lagos tech scene...
+                  </p>
+                </div>
+
+                {/* Comments Section */}
+                <div className="space-y-8 pt-12 border-t border-white/5">
+                  <h3 className="text-2xl font-bold font-headline flex items-center gap-3 text-white">
+                    <MessageCircle className="w-6 h-6 text-primary" /> Discussion
+                  </h3>
+
+                  {user ? (
+                    <div className="space-y-4 glass p-6 rounded-2xl border-white/5">
+                      <Label className="text-sm font-bold text-white/60">Leave a response</Label>
+                      <Textarea 
+                        value={commentText}
+                        onChange={(e) => setCommentText(e.target.value)}
+                        placeholder="Share your thoughts on this technological milestone..."
+                        className="bg-white/5 border-white/10 min-h-[100px] rounded-xl"
+                      />
+                      <Button 
+                        onClick={() => handleAddComment(selectedPost.id)}
+                        className="bg-primary hover:bg-primary/90 rounded-full px-8 gap-2"
+                      >
+                        Post Comment <Send className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="text-center p-8 glass rounded-2xl border-white/5">
+                      <p className="text-muted-foreground">Please <a href="/auth/login" className="text-primary font-bold hover:underline">sign in</a> to join the conversation.</p>
+                    </div>
+                  )}
+
+                  {/* Comment List Placeholder (Real-time hook can be added here) */}
+                  <div className="space-y-4">
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest text-center opacity-40 italic">Comments will appear here in real-time</p>
                   </div>
                 </div>
-              </motion.article>
-            ))}
-          </AnimatePresence>
-        </div>
-
-        {filteredPosts.length === 0 && (
-          <div className="text-center py-20 space-y-4">
-            <Sparkles className="w-12 h-12 text-muted-foreground mx-auto opacity-20" />
-            <p className="text-muted-foreground">No articles found matching your criteria.</p>
-          </div>
-        )}
-      </section>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* Newsletter Section */}
       <section className="py-24 px-6 bg-black/20">
@@ -271,9 +352,6 @@ export default function BlogPage() {
               Join Now
             </Button>
           </form>
-          <p className="text-[10px] text-muted-foreground uppercase tracking-[0.2em]">
-            Zero spam. Only pure innovation.
-          </p>
         </div>
       </section>
 

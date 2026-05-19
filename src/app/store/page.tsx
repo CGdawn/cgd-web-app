@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Navbar } from "@/components/shared/navbar";
 import { Footer } from "@/components/shared/footer";
 import { AIAssistant } from "@/components/shared/ai-assistant";
@@ -10,7 +10,8 @@ import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   ShoppingBag, Star, Zap, ShoppingCart, Filter, Search,
-  ArrowRight, Heart, Info, CheckCircle2, Package, Globe
+  ArrowRight, Heart, Info, CheckCircle2, Package, Globe,
+  Trash2, Minus, Plus, Loader2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -22,14 +23,27 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+  SheetFooter,
+} from "@/components/ui/sheet";
+import { useFirestore, useCollection, useUser } from "@/firebase";
+import { collection, doc, setDoc, deleteDoc, writeBatch, serverTimestamp, query, where } from "firebase/firestore";
+import { errorEmitter } from "@/firebase/error-emitter";
+import { FirestorePermissionError } from "@/firebase/errors";
+import { cn } from "@/lib/utils";
 
 const categories = ["All", "Digital Assets", "Courses", "Merch", "Hardware"];
 
-const products = [
+// Initial products to seed if the collection is empty
+const INITIAL_PRODUCTS = [
   {
-    id: 1,
     name: "CyGen Elite Pro Jersey",
-    price: "$45.00",
+    price: 45.00,
     category: "Merch",
     rating: 4.9,
     reviews: 120,
@@ -38,9 +52,8 @@ const products = [
     features: ["Quick-dry technology", "Holographic elements", "Elite fit"]
   },
   {
-    id: 2,
     name: "Unreal Engine Sci-Fi Pack",
-    price: "$99.00",
+    price: 99.00,
     category: "Digital Assets",
     rating: 4.8,
     reviews: 45,
@@ -49,60 +62,118 @@ const products = [
     features: ["Nanite optimized", "4K Textures", "Modular design"]
   },
   {
-    id: 3,
     name: "Aether Vision VR Headset",
-    price: "$599.00",
+    price: 599.00,
     category: "Hardware",
     rating: 5.0,
     reviews: 12,
     img: "prod-3",
     desc: "The next generation of standalone VR. 8K resolution, 144Hz refresh rate, and AI-driven eye tracking for immersive focus.",
     features: ["8K Resolution", "144Hz Refresh", "AI Eye-Tracking"]
-  },
-  {
-    id: 4,
-    name: "Next.js Futuristic Web Dev",
-    price: "$149.00",
-    category: "Courses",
-    rating: 4.7,
-    reviews: 890,
-    img: "fullstack",
-    desc: "Master the art of building futuristic UIs with Next.js, Framer Motion, and Three.js. From beginner to pro.",
-    features: ["50+ Hours content", "Source code included", "Lifetime access"]
-  },
-  {
-    id: 5,
-    name: "Dawn of Titans Art Book",
-    price: "$35.00",
-    category: "Merch",
-    rating: 4.9,
-    reviews: 56,
-    img: "portfolio-hero",
-    desc: "A collector's edition digital art book showcasing the concept art, world building, and character designs of our flagship RPG.",
-    features: ["200+ Pages", "Concept sketches", "Director's notes"]
-  },
-  {
-    id: 6,
-    name: "Cyber Motion MoCap Suite",
-    price: "$2,499.00",
-    category: "Hardware",
-    rating: 4.6,
-    reviews: 8,
-    img: "animation",
-    desc: "Portable professional motion capture suit for independent creators. High precision sensors and real-time Unity/Unreal integration.",
-    features: ["18 High-res sensors", "Real-time stream", "Wireless setup"]
   }
 ];
 
 export default function StorePage() {
+  const { user } = useUser();
+  const db = useFirestore();
   const [activeCategory, setActiveCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedProduct, setSelectedProduct] = useState<typeof products[0] | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<any>(null);
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
 
-  const filteredProducts = products.filter(p => 
-    (activeCategory === "All" || p.category === activeCategory) &&
-    (p.name.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
+  // Fetch Products
+  const productsQuery = useMemo(() => collection(db, "products"), [db]);
+  const { data: products, loading: productsLoading } = useCollection(productsQuery);
+
+  // Fetch Cart
+  const cartQuery = useMemo(() => {
+    if (!user) return null;
+    return collection(db, "users", user.uid, "cart");
+  }, [db, user]);
+  const { data: cartItems } = useCollection(cartQuery);
+
+  const cartTotal = useMemo(() => {
+    return cartItems?.reduce((sum, item) => sum + (item.price * item.quantity), 0) || 0;
+  }, [cartItems]);
+
+  const filteredProducts = useMemo(() => {
+    return products?.filter(p => 
+      (activeCategory === "All" || p.category === activeCategory) &&
+      (p.name.toLowerCase().includes(searchQuery.toLowerCase()))
+    ) || [];
+  }, [products, activeCategory, searchQuery]);
+
+  async function handleAddToCart(product: any) {
+    if (!user) {
+      window.location.href = "/auth/login";
+      return;
+    }
+
+    const cartRef = doc(db, "users", user.uid, "cart", product.id);
+    const existingItem = cartItems?.find(item => item.id === product.id);
+    const quantity = existingItem ? existingItem.quantity + 1 : 1;
+
+    setDoc(cartRef, {
+      productId: product.id,
+      name: product.name,
+      price: product.price,
+      quantity,
+      imageUrl: PlaceHolderImages.find(img => img.id === product.img)?.imageUrl || ""
+    }, { merge: true }).catch(async (e) => {
+      errorEmitter.emit("permission-error", new FirestorePermissionError({
+        path: cartRef.path,
+        operation: "update",
+        requestResourceData: { quantity }
+      }));
+    });
+  }
+
+  async function handleUpdateQuantity(productId: string, delta: number) {
+    if (!user) return;
+    const cartRef = doc(db, "users", user.uid, "cart", productId);
+    const item = cartItems?.find(i => i.id === productId);
+    if (!item) return;
+
+    const newQuantity = item.quantity + delta;
+    if (newQuantity <= 0) {
+      deleteDoc(cartRef);
+    } else {
+      setDoc(cartRef, { quantity: newQuantity }, { merge: true });
+    }
+  }
+
+  async function handleCheckout() {
+    if (!user || !cartItems || cartItems.length === 0) return;
+    setIsCheckingOut(true);
+
+    try {
+      const batch = writeBatch(db);
+      const orderId = doc(collection(db, "temp")).id;
+      const orderRef = doc(db, "users", user.uid, "orders", orderId);
+
+      batch.set(orderRef, {
+        userId: user.uid,
+        items: cartItems,
+        totalAmount: cartTotal,
+        status: "pending",
+        createdAt: serverTimestamp()
+      });
+
+      // Clear cart
+      cartItems.forEach(item => {
+        const itemRef = doc(db, "users", user.uid, "cart", item.id);
+        batch.delete(itemRef);
+      });
+
+      await batch.commit();
+      alert("Order placed successfully! Redirecting to dashboard...");
+      window.location.href = "/dashboard";
+    } catch (e) {
+      console.error("Checkout failed", e);
+    } finally {
+      setIsCheckingOut(false);
+    }
+  }
 
   const heroImage = PlaceHolderImages.find(img => img.id === "store-hero");
 
@@ -175,25 +246,30 @@ export default function StorePage() {
 
       {/* Products Grid */}
       <section className="py-24 px-6">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          <AnimatePresence mode="popLayout">
-            {filteredProducts.map((product) => (
-              <motion.div
-                key={product.id}
-                layout
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-              >
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <div 
-                      className="group glass rounded-[2.5rem] border border-white/5 overflow-hidden hover:border-primary/20 transition-all cursor-pointer flex flex-col h-full"
-                      onClick={() => setSelectedProduct(product)}
-                    >
-                      <div className="relative aspect-square overflow-hidden bg-black/20">
+        <div className="max-w-7xl mx-auto">
+          {productsLoading ? (
+            <div className="flex flex-col items-center justify-center py-20 gap-4">
+              <Loader2 className="w-12 h-12 text-primary animate-spin" />
+              <p className="text-muted-foreground font-headline uppercase tracking-widest text-xs">Accessing Inventory...</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <AnimatePresence mode="popLayout">
+                {filteredProducts.map((product) => (
+                  <motion.div
+                    key={product.id}
+                    layout
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                  >
+                    <div className="group glass rounded-[2.5rem] border border-white/5 overflow-hidden hover:border-primary/20 transition-all flex flex-col h-full relative">
+                      <div 
+                        className="relative aspect-square overflow-hidden bg-black/20 cursor-pointer"
+                        onClick={() => setSelectedProduct(product)}
+                      >
                         <Image 
-                          src={PlaceHolderImages.find(img => img.id === product.img)?.imageUrl || ""} 
+                          src={PlaceHolderImages.find(img => img.id === product.img)?.imageUrl || product.imageUrl || ""} 
                           alt={product.name} 
                           fill 
                           className="object-cover transition-transform duration-700 group-hover:scale-110"
@@ -201,137 +277,173 @@ export default function StorePage() {
                         <div className="absolute top-4 left-4">
                           <Badge className="bg-black/40 backdrop-blur-md border-white/10 text-white">{product.category}</Badge>
                         </div>
-                        <div className="absolute top-4 right-4 flex flex-col gap-2">
-                          <Button variant="ghost" size="icon" className="glass h-10 w-10 rounded-full text-white hover:text-red-400">
-                            <Heart className="w-4 h-4" />
-                          </Button>
-                        </div>
                       </div>
                       <div className="p-8 space-y-4 flex-1 flex flex-col">
                         <div className="flex justify-between items-start">
-                          <h3 className="text-xl font-bold font-headline text-white group-hover:text-primary transition-colors">
+                          <h3 
+                            className="text-xl font-bold font-headline text-white group-hover:text-primary transition-colors cursor-pointer"
+                            onClick={() => setSelectedProduct(product)}
+                          >
                             {product.name}
                           </h3>
-                          <span className="text-xl font-bold text-primary">{product.price}</span>
-                        </div>
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                          <div className="flex items-center gap-0.5 text-yellow-500">
-                            {[...Array(5)].map((_, i) => (
-                              <Star key={i} className={`w-3 h-3 ${i < Math.floor(product.rating) ? "fill-current" : ""}`} />
-                            ))}
-                          </div>
-                          <span>({product.reviews} reviews)</span>
+                          <span className="text-xl font-bold text-primary">${product.price}</span>
                         </div>
                         <p className="text-muted-foreground text-sm line-clamp-2">
-                          {product.desc}
+                          {product.desc || product.description}
                         </p>
                         <div className="pt-6 mt-auto">
-                          <Button className="w-full bg-white text-black hover:bg-white/90 rounded-full h-12 font-bold flex items-center justify-center gap-2">
+                          <Button 
+                            onClick={() => handleAddToCart(product)}
+                            className="w-full bg-white text-black hover:bg-white/90 rounded-full h-12 font-bold flex items-center justify-center gap-2"
+                          >
                             <ShoppingCart className="w-4 h-4" /> Add to Cart
                           </Button>
                         </div>
                       </div>
                     </div>
-                  </DialogTrigger>
-                  <DialogContent className="glass border-white/10 text-white max-w-4xl max-h-[90vh] overflow-y-auto">
-                    <DialogHeader>
-                      <DialogTitle className="text-3xl font-headline">{selectedProduct?.name}</DialogTitle>
-                    </DialogHeader>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mt-8">
-                      <div className="space-y-6">
-                        <div className="relative aspect-square rounded-[2rem] overflow-hidden border border-white/10">
-                          <Image 
-                            src={PlaceHolderImages.find(img => img.id === selectedProduct?.img)?.imageUrl || ""} 
-                            alt={selectedProduct?.name || ""} 
-                            fill 
-                            className="object-cover"
-                          />
-                        </div>
-                        <div className="grid grid-cols-4 gap-4">
-                          {[1, 2, 3, 4].map(i => (
-                            <div key={i} className="aspect-square rounded-xl bg-white/5 border border-white/5 overflow-hidden opacity-50 hover:opacity-100 cursor-pointer">
-                               <Image 
-                                src={PlaceHolderImages.find(img => img.id === selectedProduct?.img)?.imageUrl || ""} 
-                                alt="thumb" 
-                                width={100} 
-                                height={100} 
-                                className="object-cover"
-                              />
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                      <div className="space-y-8">
-                        <div>
-                          <Badge className="bg-primary/20 text-primary mb-4">{selectedProduct?.category}</Badge>
-                          <h4 className="text-4xl font-bold text-white mb-2">{selectedProduct?.price}</h4>
-                          <p className="text-muted-foreground leading-relaxed">
-                            {selectedProduct?.desc}
-                          </p>
-                        </div>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </div>
+          )}
 
-                        <div className="space-y-4">
-                          <h5 className="font-bold flex items-center gap-2 text-primary">
-                            <Zap className="w-4 h-4" /> Key Features
-                          </h5>
-                          <ul className="grid grid-cols-1 gap-3">
-                            {selectedProduct?.features.map((f, i) => (
-                              <li key={i} className="flex items-center gap-3 text-sm text-white/80 glass p-3 rounded-xl border-white/5">
-                                <CheckCircle2 className="w-4 h-4 text-primary" /> {f}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
+          {!productsLoading && filteredProducts.length === 0 && (
+            <div className="text-center py-20 space-y-4">
+              <ShoppingBag className="w-12 h-12 text-muted-foreground mx-auto opacity-20" />
+              <p className="text-muted-foreground">No products found in this sector.</p>
+            </div>
+          )}
+        </div>
+      </section>
 
-                        <div className="pt-8 flex flex-col sm:flex-row gap-4">
-                          <Button size="lg" className="flex-1 bg-primary hover:bg-primary/90 h-14 rounded-full font-bold">
-                            Buy Now
-                          </Button>
-                          <Button size="lg" variant="outline" className="flex-1 glass border-white/10 h-14 rounded-full">
-                            Add to Favorites
-                          </Button>
-                        </div>
+      {/* Product Detail Dialog */}
+      <Dialog open={!!selectedProduct} onOpenChange={() => setSelectedProduct(null)}>
+        <DialogContent className="glass border-white/10 text-white max-w-4xl max-h-[90vh] overflow-y-auto p-0">
+          {selectedProduct && (
+            <div className="grid grid-cols-1 md:grid-cols-2">
+              <div className="relative aspect-square md:aspect-auto h-full">
+                <Image 
+                  src={PlaceHolderImages.find(img => img.id === selectedProduct.img)?.imageUrl || selectedProduct.imageUrl || ""} 
+                  alt={selectedProduct.name} 
+                  fill 
+                  className="object-cover"
+                />
+              </div>
+              <div className="p-8 md:p-12 space-y-8">
+                <DialogHeader className="p-0">
+                  <Badge className="bg-primary/20 text-primary w-fit mb-4">{selectedProduct.category}</Badge>
+                  <DialogTitle className="text-3xl font-headline text-white">{selectedProduct.name}</DialogTitle>
+                </DialogHeader>
+                
+                <div className="space-y-4">
+                  <p className="text-4xl font-bold text-primary">${selectedProduct.price}</p>
+                  <p className="text-muted-foreground leading-relaxed">{selectedProduct.desc || selectedProduct.description}</p>
+                </div>
 
-                        <div className="flex items-center justify-between pt-8 border-t border-white/5 text-xs text-muted-foreground uppercase tracking-widest">
-                          <span className="flex items-center gap-2"><Globe className="w-4 h-4" /> Global Shipping</span>
-                          <span className="flex items-center gap-2"><Package className="w-4 h-4" /> Secure Packing</span>
-                        </div>
+                <div className="space-y-4">
+                  <h5 className="font-bold flex items-center gap-2 text-white">
+                    <Zap className="w-4 h-4 text-primary" /> Key Features
+                  </h5>
+                  <ul className="grid grid-cols-1 gap-3">
+                    {(selectedProduct.features || []).map((f: string, i: number) => (
+                      <li key={i} className="flex items-center gap-3 text-sm text-white/80 glass p-3 rounded-xl border-white/5">
+                        <CheckCircle2 className="w-4 h-4 text-primary" /> {f}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <Button 
+                  onClick={() => {
+                    handleAddToCart(selectedProduct);
+                    setSelectedProduct(null);
+                  }}
+                  className="w-full bg-primary hover:bg-primary/90 h-14 rounded-full font-bold text-lg"
+                >
+                  Confirm Purchase
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Cart Sheet */}
+      <Sheet>
+        <SheetTrigger asChild>
+          <div className="fixed bottom-24 right-8 z-[90]">
+            <Button size="lg" className="h-16 w-16 rounded-full bg-primary shadow-2xl shadow-primary/20 hover:scale-110 transition-transform">
+              <ShoppingCart className="w-6 h-6" />
+              {cartItems && cartItems.length > 0 && (
+                <Badge className="absolute -top-1 -right-1 bg-white text-black font-bold h-6 w-6 flex items-center justify-center rounded-full border-2 border-primary">
+                  {cartItems.length}
+                </Badge>
+              )}
+            </Button>
+          </div>
+        </SheetTrigger>
+        <SheetContent className="glass border-white/10 text-white flex flex-col p-0 w-full sm:max-w-md">
+          <SheetHeader className="p-6 border-b border-white/5">
+            <SheetTitle className="text-white font-headline flex items-center gap-2">
+              <ShoppingBag className="w-5 h-5" /> Your Inventory
+            </SheetTitle>
+          </SheetHeader>
+          
+          <div className="flex-1 overflow-y-auto p-6 space-y-6">
+            {!cartItems || cartItems.length === 0 ? (
+              <div className="h-full flex flex-col items-center justify-center text-center space-y-4 opacity-40">
+                <ShoppingCart className="w-16 h-16" />
+                <p className="font-headline uppercase tracking-widest text-xs">Your cart is empty</p>
+              </div>
+            ) : (
+              cartItems.map((item) => (
+                <div key={item.id} className="flex gap-4 glass p-4 rounded-2xl border-white/5">
+                  <div className="relative w-20 h-20 rounded-xl overflow-hidden border border-white/10 shrink-0">
+                    <Image src={item.imageUrl} alt={item.name} fill className="object-cover" />
+                  </div>
+                  <div className="flex-1 space-y-2">
+                    <div className="flex justify-between items-start">
+                      <h4 className="font-bold text-sm text-white line-clamp-1">{item.name}</h4>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-6 w-6 text-muted-foreground hover:text-red-400"
+                        onClick={() => handleUpdateQuantity(item.id, -item.quantity)}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                    <p className="text-primary font-bold text-sm">${item.price}</p>
+                    <div className="flex items-center gap-3 pt-1">
+                      <div className="flex items-center gap-2 bg-white/5 rounded-lg px-2 py-1">
+                        <button onClick={() => handleUpdateQuantity(item.id, -1)} className="text-white/40 hover:text-white"><Minus className="w-3 h-3" /></button>
+                        <span className="text-xs font-bold w-4 text-center">{item.quantity}</span>
+                        <button onClick={() => handleUpdateQuantity(item.id, 1)} className="text-white/40 hover:text-white"><Plus className="w-3 h-3" /></button>
                       </div>
                     </div>
-                  </DialogContent>
-                </Dialog>
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        </div>
-      </section>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
 
-      {/* Trust Section */}
-      <section className="py-24 px-6 relative overflow-hidden">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12">
-           {[
-             { icon: Globe, title: "Global Access", desc: "Digital products delivered instantly worldwide." },
-             { icon: Star, title: "Quality Assured", desc: "Every product is vetted by our core engineering team." },
-             { icon: ShoppingBag, title: "Verified Gear", desc: "Official merchandise with authenticity guarantee." }
-           ].map((item, i) => (
-             <div key={i} className="text-center space-y-4 p-10 glass rounded-[3rem] border-white/5">
-               <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-primary/20">
-                 <item.icon className="w-8 h-8 text-primary" />
-               </div>
-               <h4 className="text-xl font-bold font-headline text-white">{item.title}</h4>
-               <p className="text-muted-foreground text-sm">{item.desc}</p>
-             </div>
-           ))}
-        </div>
-      </section>
-
-      {/* Floating Cart Button */}
-      <div className="fixed bottom-24 right-8 z-[90]">
-        <Button size="lg" className="h-16 w-16 rounded-full bg-primary shadow-2xl shadow-primary/20 hover:scale-110 transition-transform">
-          <ShoppingCart className="w-6 h-6" />
-          <Badge className="absolute -top-1 -right-1 bg-white text-black font-bold h-6 w-6 flex items-center justify-center rounded-full border-2 border-primary">2</Badge>
-        </Button>
-      </div>
+          {cartItems && cartItems.length > 0 && (
+            <SheetFooter className="p-6 glass-dark border-t border-white/10 flex flex-col gap-4">
+              <div className="flex justify-between items-center w-full text-lg">
+                <span className="text-muted-foreground font-headline uppercase tracking-widest text-xs">Total Credits</span>
+                <span className="text-white font-bold">${cartTotal.toFixed(2)}</span>
+              </div>
+              <Button 
+                onClick={handleCheckout}
+                disabled={isCheckingOut}
+                className="w-full bg-primary hover:bg-primary/90 h-14 rounded-xl font-bold text-lg"
+              >
+                {isCheckingOut ? <Loader2 className="w-5 h-5 animate-spin" /> : "Complete Transaction"}
+              </Button>
+            </SheetFooter>
+          )}
+        </SheetContent>
+      </Sheet>
 
       <Footer />
       <AIAssistant />
