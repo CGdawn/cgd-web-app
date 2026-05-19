@@ -4,8 +4,8 @@
     {
       "id": "site-logo",
       "description": "CyGen Dawn Official Logo",
-      "imageUrl": "https://picsum.photos/seed/logo-cygen/200/200",
-      "imageHint": "tech logo"
+      "imageUrl": "/logo.png",
+      "imageHint": "company logo"
     },
     {
       "id": "hero-bg",

@@ -54,13 +54,13 @@ export function Navbar() {
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <Link href="/" className="flex items-center gap-3 group">
           {logo && (
-            <div className="relative w-12 h-12 overflow-hidden rounded-lg">
+            <div className="relative w-12 h-12">
               <Image 
                 src={logo.imageUrl} 
                 alt="CyGen Dawn Logo" 
                 fill 
                 className="object-contain"
-                data-ai-hint={logo.imageHint}
+                priority
               />
             </div>
           )}
@@ -145,7 +145,7 @@ export function Navbar() {
               </Link>
             ))}
             
-            {/* Mobile Dropdown Items (Flattened for better UX on mobile) */}
+            {/* Mobile Dropdown Items */}
             <div className="space-y-4 pt-2 border-t border-white/5">
               <p className="text-[10px] uppercase tracking-[0.2em] text-primary/60 font-bold">Ecosystem</p>
               {dropdownLinks.map((link) => (

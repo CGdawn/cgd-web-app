@@ -15,13 +15,12 @@ export function Footer() {
         <div className="space-y-6">
           <Link href="/" className="flex items-center gap-3">
             {logo && (
-              <div className="relative w-10 h-10 overflow-hidden rounded-lg">
+              <div className="relative w-12 h-12">
                 <Image 
                   src={logo.imageUrl} 
                   alt="CyGen Dawn Logo" 
                   fill 
                   className="object-contain"
-                  data-ai-hint={logo.imageHint}
                 />
               </div>
             )}
