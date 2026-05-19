@@ -1,3 +1,4 @@
+
 {
   "placeholderImages": [
     {
@@ -43,10 +44,28 @@
       "imageHint": "executive portrait"
     },
     {
+      "id": "team-cto",
+      "description": "CTO Portrait",
+      "imageUrl": "https://picsum.photos/seed/cto/400/400",
+      "imageHint": "tech leader"
+    },
+    {
+      "id": "team-creative",
+      "description": "Creative Director Portrait",
+      "imageUrl": "https://picsum.photos/seed/creative/400/400",
+      "imageHint": "creative professional"
+    },
+    {
       "id": "project1",
       "description": "Futuristic UI interface",
       "imageUrl": "https://picsum.photos/seed/project1/800/600",
       "imageHint": "tech interface"
+    },
+    {
+      "id": "about-hero",
+      "description": "Futuristic laboratory setup",
+      "imageUrl": "https://picsum.photos/seed/about/1920/1080",
+      "imageHint": "future lab"
     }
   ]
 }
