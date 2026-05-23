@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -33,24 +34,42 @@ export default function LoginPage() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    
     try {
-      // Attempt login
+      // 1. Attempt standard login
       try {
         await signInWithEmailAndPassword(auth, email, password);
+        window.location.href = "/dashboard";
       } catch (err: any) {
-        // If demo user doesn't exist, create it for this prototype session
-        if (err.code === 'auth/user-not-found' && email.includes('@cgdawn.org')) {
-          await createUserWithEmailAndPassword(auth, email, password);
+        // 2. If user doesn't exist and it's a demo account, create it
+        const isDemoAccount = email.endsWith("@cgdawn.org") && password === "password123";
+        
+        if (isDemoAccount && (err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential')) {
+          try {
+            await createUserWithEmailAndPassword(auth, email, password);
+            window.location.href = "/dashboard";
+            return;
+          } catch (createErr: any) {
+            // If creation fails (e.g. email already exists but password was wrong), re-throw original error
+            throw err;
+          }
         } else {
           throw err;
         }
       }
-      window.location.href = "/dashboard";
     } catch (error: any) {
+      console.error("Auth Error:", error.code, error.message);
+      
+      let errorMessage = "Invalid credentials provided.";
+      if (error.code === 'auth/user-not-found') errorMessage = "This identity does not exist in our nexus.";
+      if (error.code === 'auth/wrong-password') errorMessage = "Security key mismatch. Please check your credentials.";
+      if (error.code === 'auth/invalid-credential') errorMessage = "Authentication failed. Incorrect email or password.";
+      if (error.code === 'auth/too-many-requests') errorMessage = "Access blocked due to multiple failed attempts. Try again later.";
+
       toast({
         variant: "destructive",
         title: "Access Denied",
-        description: error.message || "Invalid credentials provided.",
+        description: errorMessage,
       });
     } finally {
       setIsLoading(false);
@@ -152,7 +171,7 @@ export default function LoginPage() {
                 <span className="w-full border-t border-white/5" />
               </div>
               <div className="relative flex justify-center text-[10px] uppercase">
-                <span className="bg-card px-2 text-muted-foreground tracking-widest">Global Auth Bridge</span>
+                <span className="bg-[#1A161E] px-2 text-muted-foreground tracking-widest">Global Auth Bridge</span>
               </div>
             </div>
 
@@ -187,6 +206,7 @@ export default function LoginPage() {
               {DEMO_ACCOUNTS.map((acc) => (
                 <button
                   key={acc.role}
+                  type="button"
                   onClick={() => fillDemo(acc.email)}
                   className="w-full flex items-center justify-between p-4 glass-dark rounded-xl border border-white/5 hover:border-primary/20 transition-all text-left group"
                 >
@@ -203,7 +223,7 @@ export default function LoginPage() {
               ))}
             </div>
             <div className="p-4 bg-primary/5 rounded-xl border border-primary/10">
-              <p className="text-[10px] text-primary/80 leading-relaxed italic">
+              <p className="text-[10px] text-primary/80 leading-relaxed italic text-center">
                 * Note: The first login will automatically provision your Firestore role.
               </p>
             </div>
