@@ -3,8 +3,8 @@
 import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarFooter, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
 import { 
   LayoutDashboard, Users, FolderKanban, GraduationCap, 
-  Briefcase, Settings, LogOut, Bell, MessageSquare,
-  FileText, ShoppingBag, ClipboardList, Zap, Loader2, ShieldAlert
+  Settings, LogOut, Bell, MessageSquare,
+  FileText, ShoppingBag, ClipboardList, Loader2
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -23,15 +23,24 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const auth = useAuth();
   const logo = PlaceHolderImages.find(img => img.id === "site-logo");
 
-  // Only create userRef if user is definitively logged in
-  const userRef = useMemo(() => user ? doc(db, "users", user.uid) : null, [db, user]);
+  // Auth-Guarded User Reference
+  const userRef = useMemo(() => {
+    if (!user || authLoading) return null;
+    return doc(db, "users", user.uid);
+  }, [db, user, authLoading]);
+
   const { data: profile, loading: profileLoading, error: profileError } = useDoc(userRef);
 
   // Role Bootstrapper: Ensures user document exists in Firestore
   useEffect(() => {
-    // We attempt to bootstrap if the profile is missing OR if there was a permission error (common on first read of non-existent self-doc)
-    if (user && !authLoading && !profileLoading && (!profile || profileError)) {
-      const email = user.email?.toLowerCase();
+    const shouldBootstrap = 
+      user && 
+      !authLoading && 
+      !profileLoading && 
+      (!profile || profileError?.name === 'FirestorePermissionError');
+
+    if (shouldBootstrap) {
+      const email = user.email?.toLowerCase() || "";
       let role = "client"; // Default role
       
       if (email === "superadmin@cgdawn.org") role = "super-admin";
@@ -42,14 +51,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       const newUserProfile = {
         uid: user.uid,
         email: user.email,
-        displayName: user.displayName || email?.split('@')[0] || "Explorer",
+        displayName: user.displayName || email.split('@')[0] || "Explorer",
         avatar: user.photoURL || "",
         role: role,
         createdAt: serverTimestamp()
       };
 
       // Proactive write to establish the profile
-      setDoc(doc(db, "users", user.uid), newUserProfile, { merge: true });
+      setDoc(doc(db, "users", user.uid), newUserProfile, { merge: true })
+        .catch((e) => console.warn("Background bootstrap pending security rules...", e));
     }
   }, [user, profile, profileLoading, authLoading, db, profileError]);
 
@@ -68,26 +78,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         { icon: FileText, label: "All Posts", href: "/dashboard/posts" },
         { icon: ShoppingBag, label: "Inventory", href: "/dashboard/store" }
       );
-    }
-
-    if (role === "admin") {
+    } else if (role === "admin") {
       items.push(
         { icon: FileText, label: "My Posts", href: "/dashboard/posts" },
         { icon: ShoppingBag, label: "Inventory", href: "/dashboard/store" }
       );
-    }
-
-    if (role === "staff") {
+    } else if (role === "staff") {
       items.push(
-        { icon: ClipboardList, label: "My Tasks", href: "/dashboard/tasks" },
-        { icon: GraduationCap, label: "Learning", href: "/dashboard/learning" }
+        { icon: ClipboardList, label: "My Tasks", href: "/dashboard/tasks" }
       );
-    }
-
-    if (role === "client") {
+    } else if (role === "client") {
       items.push(
-        { icon: FolderKanban, label: "My Requests", href: "/dashboard/jobs" },
-        { icon: ShoppingBag, label: "Browse Store", href: "/store" }
+        { icon: FolderKanban, label: "My Requests", href: "/dashboard/jobs" }
       );
     }
 
@@ -116,23 +118,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   if (!user) {
     if (typeof window !== "undefined") window.location.href = "/auth/login";
     return null;
-  }
-
-  // Handle case where profile loading failed due to rules mismatch or missing doc
-  // We only show the error screen if we've finished trying to bootstrap and it still fails
-  if (profileError && !profile && !profileLoading) {
-    return (
-      <div className="min-h-screen bg-[#0D0B10] flex flex-col items-center justify-center p-8 text-center space-y-6">
-        <ShieldAlert className="w-16 h-16 text-primary" />
-        <h2 className="text-2xl font-headline font-bold text-white">Interface Lock</h2>
-        <p className="text-muted-foreground max-w-md">
-          Establishing your security clearance. This usually happens on your first connection to the nexus.
-        </p>
-        <Button onClick={() => window.location.reload()} variant="outline" className="glass">
-          Retry Connection
-        </Button>
-      </div>
-    );
   }
 
   return (
@@ -211,8 +196,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <div className="flex-1 overflow-y-auto p-8 bg-background/50">
             {profileLoading ? (
               <div className="h-full flex flex-col items-center justify-center gap-4">
-                <Loader2 className="w-8 h-8 text-primary animate-spin" />
-                <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Loading Profile...</p>
+                <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Initializing User Session...</p>
               </div>
             ) : children}
           </div>

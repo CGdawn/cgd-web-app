@@ -5,14 +5,20 @@
  * Initializes and exports singleton instances for Auth, Firestore, and Storage.
  * 
  * SECURITY RULES DEPLOYMENT TRIGGER:
- * Updated: 2024-05-24 14:35:00 UTC
+ * Updated: 2024-05-24 16:15:00 UTC
  * 
- * The following rules are required for the CyGen Dawn ecosystem:
- * - Users: allow read, write: if request.auth != null && request.auth.uid == userId;
- * - Posts: Public Read. Admins: Create/Update. Super Admin: Full Access/Delete.
- * - Tasks: Super Admin: Full Access. Staff: Read/Update assigned tasks.
- * - JobRequests: Super Admin: Full Access. Clients: Read/Create own requests.
- * - Products: Public Read. Super Admin: Full Access.
+ * REQUIRED SECURITY RULES:
+ * match /users/{userId} {
+ *   allow read, write: if request.auth != null && request.auth.uid == userId;
+ * }
+ * match /posts/{postId} {
+ *   allow read;
+ *   allow write: if request.auth != null && (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'super-admin']);
+ * }
+ * match /jobRequests/{requestId} {
+ *   allow read: if request.auth != null && (request.auth.uid == resource.data.clientId || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'super-admin');
+ *   allow create: if request.auth != null;
+ * }
  */
 
 import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
@@ -27,7 +33,6 @@ export function initializeFirebase(): {
   auth: Auth;
   storage: FirebaseStorage;
 } {
-  // Prevent duplicate initialization in development
   const firebaseApp = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
   const firestore = getFirestore(firebaseApp);
   const auth = getAuth(firebaseApp);

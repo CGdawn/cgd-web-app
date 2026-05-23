@@ -4,14 +4,15 @@ import { useState, useEffect } from 'react';
 import { DocumentReference, onSnapshot, DocumentSnapshot, DocumentData } from 'firebase/firestore';
 import { errorEmitter } from '../error-emitter';
 import { FirestorePermissionError } from '../errors';
+import { useAuth } from '../provider';
 
 export function useDoc(docRef: DocumentReference | null) {
   const [data, setData] = useState<DocumentData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const auth = useAuth();
 
   useEffect(() => {
-    // Wait for the document reference to be provided
     if (!docRef) {
       setData(null);
       setLoading(false);
@@ -27,13 +28,20 @@ export function useDoc(docRef: DocumentReference | null) {
         setLoading(false);
       },
       async (err) => {
-        // Only emit if it's a real permission error and not just a missing document
         if (err.code === 'permission-denied') {
           const permissionError = new FirestorePermissionError({
             path: docRef.path,
             operation: 'get',
           });
-          errorEmitter.emit('permission-error', permissionError);
+
+          // Graceful handling: If it's the user's own profile, don't trigger the global error overlay
+          // as the app is likely about to bootstrap/create this document.
+          const isOwnProfile = auth.currentUser && docRef.path.includes(`users/${auth.currentUser.uid}`);
+          
+          if (!isOwnProfile) {
+            errorEmitter.emit('permission-error', permissionError);
+          }
+          
           setError(permissionError);
         } else {
           setError(err);
@@ -43,7 +51,7 @@ export function useDoc(docRef: DocumentReference | null) {
     );
 
     return () => unsubscribe();
-  }, [docRef]);
+  }, [docRef, auth]);
 
   return { data, loading, error };
 }

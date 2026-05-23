@@ -23,15 +23,20 @@ export function useCollection(query: Query | null) {
       (snapshot: QuerySnapshot) => {
         const docs = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
         setData(docs);
+        setError(null);
         setLoading(false);
       },
       async (err) => {
-        const permissionError = new FirestorePermissionError({
-          path: 'query',
-          operation: 'list',
-        });
-        errorEmitter.emit('permission-error', permissionError);
-        setError(err);
+        if (err.code === 'permission-denied') {
+          const permissionError = new FirestorePermissionError({
+            path: 'query',
+            operation: 'list',
+          });
+          errorEmitter.emit('permission-error', permissionError);
+          setError(permissionError);
+        } else {
+          setError(err);
+        }
         setLoading(false);
       }
     );
