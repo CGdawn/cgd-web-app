@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from "react";
@@ -24,6 +23,8 @@ import {
   DialogDescription,
   DialogTrigger 
 } from "@/components/ui/dialog";
+import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 const categories = [
   "All", "Game Development", "VR & AR", "AI Solutions", 
@@ -163,15 +164,15 @@ export default function PortfolioPage() {
       </section>
 
       {/* Filter System */}
-      <section className="py-12 px-6 sticky top-20 z-40 glass border-y border-white/5">
-        <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-8">
+      <section className="py-6 px-6 sticky top-20 z-40 glass border-y border-white/5">
+        <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-6">
           <div className="flex flex-wrap justify-center lg:justify-start gap-2">
             {categories.map((cat) => (
               <Button
                 key={cat}
                 variant={activeFilter === cat ? "default" : "ghost"}
                 className={cn(
-                  "rounded-full px-6 transition-all",
+                  "rounded-full px-5 h-9 text-xs transition-all",
                   activeFilter === cat ? "bg-primary text-white" : "text-muted-foreground hover:text-white"
                 )}
                 onClick={() => setActiveFilter(cat)}
@@ -184,7 +185,7 @@ export default function PortfolioPage() {
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input 
               placeholder="Search projects..." 
-              className="pl-11 bg-white/5 border-white/10 rounded-full h-12"
+              className="pl-11 bg-white/5 border-white/10 rounded-full h-10 text-sm"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -362,6 +363,3 @@ export default function PortfolioPage() {
     </main>
   );
 }
-
-import Link from "next/link";
-import { cn } from "@/lib/utils";

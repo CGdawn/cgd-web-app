@@ -169,14 +169,14 @@ export default function StorePage() {
         </div>
       </section>
 
-      <section className="py-12 px-6 sticky top-20 z-40 glass border-y border-white/5">
-        <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-8">
+      <section className="py-6 px-6 sticky top-20 z-40 glass border-y border-white/5">
+        <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-6">
           <div className="flex flex-wrap justify-center lg:justify-start gap-2">
             {categories.map((cat) => (
               <Button
                 key={cat}
                 variant={activeCategory === cat ? "default" : "ghost"}
-                className={`rounded-full px-6 ${activeCategory === cat ? "bg-primary text-white" : "text-muted-foreground"}`}
+                className={`rounded-full px-5 h-9 text-xs transition-all ${activeCategory === cat ? "bg-primary text-white" : "text-muted-foreground"}`}
                 onClick={() => setActiveCategory(cat)}
               >
                 {cat}
@@ -187,7 +187,7 @@ export default function StorePage() {
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input 
               placeholder="Search assets..." 
-              className="pl-11 bg-white/5 border-white/10 rounded-full h-12"
+              className="pl-11 bg-white/5 border-white/10 rounded-full h-10 text-sm"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
