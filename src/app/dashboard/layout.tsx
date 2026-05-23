@@ -1,3 +1,4 @@
+
 "use client";
 
 import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarFooter, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
@@ -33,31 +34,29 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   const { data: profile, loading: profileLoading, error: profileError } = useDoc(userRef);
 
-  // Role Bootstrapper: Ensures user document exists in Firestore
+  // Role Bootstrapper: Ensures user document exists in Firestore and demo roles are synced
   useEffect(() => {
-    const isPermissionDenied = profileError?.message?.includes("permissions");
-    const shouldBootstrap = 
-      user && 
-      !authLoading && 
-      !profileLoading && 
-      (!profile || isPermissionDenied);
+    if (authLoading || profileLoading || !user) return;
 
-    if (shouldBootstrap) {
-      const email = user.email?.toLowerCase() || "";
-      let role = "client"; // Default role
-      
-      if (email === "superadmin@cgdawn.org") role = "super-admin";
-      else if (email === "admin@cgdawn.org") role = "admin";
-      else if (email === "staff@cgdawn.org") role = "staff";
-      else if (email === "client@cgdawn.org") role = "client";
+    const email = user.email?.toLowerCase() || "";
+    let expectedRole = "client";
+    if (email === "superadmin@cgdawn.org") expectedRole = "super-admin";
+    else if (email === "admin@cgdawn.org") expectedRole = "admin";
+    else if (email === "staff@cgdawn.org") expectedRole = "staff";
+    else if (email === "client@cgdawn.org") expectedRole = "client";
 
+    const isMissing = !profile;
+    const hasWrongRole = profile && profile.role !== expectedRole && expectedRole !== "client";
+
+    if (isMissing || hasWrongRole) {
       const newUserProfile = {
         uid: user.uid,
         email: user.email,
         displayName: user.displayName || email.split('@')[0] || "Explorer",
         avatar: user.photoURL || "",
-        role: role,
-        createdAt: serverTimestamp()
+        role: expectedRole,
+        updatedAt: serverTimestamp(),
+        ...(isMissing ? { createdAt: serverTimestamp() } : {})
       };
 
       setDoc(doc(db, "users", user.uid), newUserProfile, { merge: true })
@@ -65,10 +64,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         .catch((e) => {
           console.warn("Bootstrap attempt failed, retrying on next cycle...", e);
         });
-    } else if (profile) {
+    } else {
       setBootstrapComplete(true);
     }
-  }, [user, profile, profileLoading, authLoading, db, profileError]);
+  }, [user, profile, profileLoading, authLoading, db]);
 
   const role = profile?.role || "client";
 

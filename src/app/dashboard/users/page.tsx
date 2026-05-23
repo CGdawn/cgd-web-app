@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useMemo } from "react";
@@ -24,14 +25,14 @@ export default function UserManagementPage() {
   const [searchTerm, setSearchTerm] = useState("");
 
   const currentUserRef = useMemo(() => currentUser ? doc(db, "users", currentUser.uid) : null, [db, currentUser]);
-  const { data: profile } = useDoc(currentUserRef);
+  const { data: profile, loading: profileLoading } = useDoc(currentUserRef);
 
   // Only allow querying users if the current user is a super-admin
   const usersQuery = useMemo(() => {
     if (profile?.role !== "super-admin") return null;
     return query(collection(db, "users"), orderBy("createdAt", "desc"));
   }, [db, profile]);
-  const { data: allUsers, loading } = useCollection(usersQuery);
+  const { data: allUsers, loading: usersLoading } = useCollection(usersQuery);
 
   const filteredUsers = useMemo(() => {
     return allUsers?.filter(u => 
@@ -42,15 +43,26 @@ export default function UserManagementPage() {
 
   async function handleUpdateRole(userId: string, newRole: string) {
     if (profile?.role !== "super-admin") return;
-    await updateDoc(doc(db, "users", userId), { role: newRole });
+    updateDoc(doc(db, "users", userId), { role: newRole });
   }
 
-  if (profile?.role !== "super-admin") {
+  // Handle loading state for the initial permission check
+  if (profileLoading) {
+    return (
+      <div className="h-full flex flex-col items-center justify-center gap-4">
+        <Loader2 className="w-12 h-12 text-primary animate-spin" />
+        <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Verifying Permissions...</p>
+      </div>
+    );
+  }
+
+  if (!profile || profile.role !== "super-admin") {
     return (
       <div className="h-full flex flex-col items-center justify-center space-y-4">
         <ShieldAlert className="w-16 h-16 text-red-500" />
         <h2 className="text-2xl font-headline font-bold text-white">Access Denied</h2>
         <p className="text-muted-foreground">Only the Super Admin can reconfigure system roles.</p>
+        <p className="text-[10px] text-primary font-bold uppercase">Current Identity: {currentUser?.email}</p>
       </div>
     );
   }
@@ -81,7 +93,7 @@ export default function UserManagementPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0">
-            {loading ? (
+            {usersLoading ? (
               <div className="p-20 flex justify-center"><Loader2 className="w-8 h-8 text-primary animate-spin" /></div>
             ) : (
               <div className="divide-y divide-white/5">
