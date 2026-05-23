@@ -1,3 +1,4 @@
+
 {
   "entities": {
     "User": {
@@ -11,7 +12,7 @@
         "email": { "type": "string" },
         "avatar": { "type": "string" },
         "bio": { "type": "string" },
-        "role": { "type": "string", "enum": ["admin", "author", "user", "staff"] },
+        "role": { "type": "string", "enum": ["super-admin", "admin", "staff", "client"] },
         "followers": { "type": "number" },
         "following": { "type": "number" },
         "createdAt": { "type": "string", "format": "date-time" }
@@ -37,54 +38,33 @@
         "createdAt": { "type": "string", "format": "date-time" }
       }
     },
-    "Comment": {
-      "title": "Comment",
-      "description": "Threaded community comment",
+    "Task": {
+      "title": "Task",
+      "description": "Operational task assigned to staff",
       "type": "object",
       "properties": {
-        "postId": { "type": "string" },
-        "userId": { "type": "string" },
-        "userName": { "type": "string" },
-        "userAvatar": { "type": "string" },
-        "content": { "type": "string" },
-        "parentId": { "type": "string" },
-        "likes": { "type": "number" },
-        "createdAt": { "type": "string", "format": "date-time" }
-      }
-    },
-    "Reaction": {
-      "title": "Reaction",
-      "description": "Emoji reaction record",
-      "type": "object",
-      "properties": {
-        "postId": { "type": "string" },
-        "userId": { "type": "string" },
-        "type": { "type": "string", "enum": ["like", "love", "fire", "mindblown", "rocket", "genius"] }
-      }
-    },
-    "Product": {
-      "title": "Product",
-      "description": "Marketplace item",
-      "type": "object",
-      "properties": {
-        "name": { "type": "string" },
-        "price": { "type": "number" },
-        "category": { "type": "string" },
+        "title": { "type": "string" },
         "description": { "type": "string" },
-        "imageUrl": { "type": "string" },
-        "features": { "type": "array", "items": { "type": "string" } },
-        "stock": { "type": "number" }
+        "assignedToId": { "type": "string" },
+        "assignedToName": { "type": "string" },
+        "assignedById": { "type": "string" },
+        "status": { "type": "string", "enum": ["todo", "in-progress", "completed"] },
+        "progress": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
       }
     },
-    "Order": {
-      "title": "Order",
-      "description": "Customer order history",
+    "JobRequest": {
+      "title": "JobRequest",
+      "description": "Client project request",
       "type": "object",
       "properties": {
-        "userId": { "type": "string" },
-        "items": { "type": "array" },
-        "totalAmount": { "type": "number" },
-        "status": { "type": "string", "enum": ["pending", "processing", "shipped", "delivered"] },
+        "clientId": { "type": "string" },
+        "clientName": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "active", "completed", "cancelled"] },
+        "adminUpdate": { "type": "string" },
         "createdAt": { "type": "string", "format": "date-time" }
       }
     }
@@ -101,25 +81,13 @@
       "schema": "Post",
       "description": "Blog articles"
     },
-    "/posts/{postId}/comments/{commentId}": {
-      "schema": "Comment",
-      "description": "Post discussions"
+    "/tasks/{taskId}": {
+      "schema": "Task",
+      "description": "Internal staff tasks"
     },
-    "/posts/{postId}/reactions/{userId}": {
-      "schema": "Reaction",
-      "description": "User reactions"
-    },
-    "/products/{productId}": {
-      "schema": "Product",
-      "description": "Store inventory"
-    },
-    "/users/{userId}/cart/{productId}": {
-      "schema": "object",
-      "description": "Individual user cart items"
-    },
-    "/users/{userId}/orders/{orderId}": {
-      "schema": "Order",
-      "description": "User order records"
+    "/jobRequests/{requestId}": {
+      "schema": "JobRequest",
+      "description": "Client project inquiries"
     }
   }
 }

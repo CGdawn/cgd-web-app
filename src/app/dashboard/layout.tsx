@@ -5,7 +5,7 @@ import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarFooter,
 import { 
   LayoutDashboard, Users, FolderKanban, GraduationCap, 
   Briefcase, Settings, LogOut, Bell, MessageSquare,
-  FileText, ShoppingBag
+  FileText, ShoppingBag, ClipboardList, Zap
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -16,18 +16,6 @@ import { PlaceHolderImages } from "@/app/lib/placeholder-images";
 import { doc } from "firebase/firestore";
 import { useMemo } from "react";
 
-const navItems = [
-  { icon: LayoutDashboard, label: "Overview", href: "/dashboard" },
-  { icon: FolderKanban, label: "Projects", href: "/dashboard/projects" },
-  { icon: FileText, label: "Blog Posts", href: "/dashboard/posts" },
-  { icon: ShoppingBag, label: "Store Inventory", href: "/dashboard/store" },
-  { icon: Users, label: "Teams", href: "/dashboard/staff" },
-  { icon: MessageSquare, label: "Messages", href: "/dashboard/messages" },
-  { icon: GraduationCap, label: "Learning", href: "/dashboard/learning" },
-  { icon: Briefcase, label: "Recruitment", href: "/dashboard/hr" },
-  { icon: Settings, label: "Settings", href: "/dashboard/settings" },
-];
-
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { user } = useUser();
   const db = useFirestore();
@@ -36,7 +24,51 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const userRef = useMemo(() => user ? doc(db, "users", user.uid) : null, [db, user]);
   const { data: profile } = useDoc(userRef);
 
-  const displayRole = profile?.role || "Super Admin";
+  const role = profile?.role || "client";
+
+  const navItems = useMemo(() => {
+    const items = [
+      { icon: LayoutDashboard, label: "Overview", href: "/dashboard" },
+    ];
+
+    if (role === "super-admin") {
+      items.push(
+        { icon: Users, label: "Manage Roles", href: "/dashboard/users" },
+        { icon: ClipboardList, label: "System Tasks", href: "/dashboard/tasks" },
+        { icon: FolderKanban, label: "Job Requests", href: "/dashboard/jobs" },
+        { icon: FileText, label: "All Posts", href: "/dashboard/posts" },
+        { icon: ShoppingBag, label: "Inventory", href: "/dashboard/store" }
+      );
+    }
+
+    if (role === "admin") {
+      items.push(
+        { icon: FileText, label: "My Posts", href: "/dashboard/posts" },
+        { icon: ShoppingBag, label: "Inventory", href: "/dashboard/store" }
+      );
+    }
+
+    if (role === "staff") {
+      items.push(
+        { icon: ClipboardList, label: "My Tasks", href: "/dashboard/tasks" },
+        { icon: GraduationCap, label: "Learning", href: "/dashboard/learning" }
+      );
+    }
+
+    if (role === "client") {
+      items.push(
+        { icon: FolderKanban, label: "My Requests", href: "/dashboard/jobs" },
+        { icon: ShoppingBag, label: "Browse Store", href: "/store" }
+      );
+    }
+
+    items.push(
+      { icon: MessageSquare, label: "Messages", href: "/dashboard/messages" },
+      { icon: Settings, label: "Settings", href: "/dashboard/settings" }
+    );
+
+    return items;
+  }, [role]);
 
   return (
     <SidebarProvider>
@@ -51,7 +83,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     alt="CyGen Dawn Logo" 
                     fill 
                     className="object-contain"
-                    data-ai-hint={logo.imageHint}
                   />
                 </div>
               )}
@@ -84,8 +115,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   <AvatarFallback className="bg-primary/10 text-primary">{user?.displayName?.[0] || "A"}</AvatarFallback>
                 </Avatar>
                 <div className="overflow-hidden">
-                  <p className="text-xs font-bold text-white truncate">{user?.displayName || "Donald Attah"}</p>
-                  <p className="text-[10px] text-muted-foreground truncate uppercase tracking-widest">{displayRole}</p>
+                  <p className="text-xs font-bold text-white truncate">{user?.displayName || "User"}</p>
+                  <p className="text-[10px] text-muted-foreground truncate uppercase tracking-widest">{role.replace("-", " ")}</p>
                 </div>
               </div>
               <Button variant="ghost" className="w-full justify-start text-white/60 hover:text-red-400 hover:bg-red-400/10 h-10 rounded-xl" asChild>
@@ -106,7 +137,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <span className="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full" />
               </Button>
               <div className="h-6 w-px bg-white/10" />
-              <p className="text-xs font-medium text-white/40">v1.2.0-stable</p>
+              <p className="text-xs font-medium text-white/40">v1.2.5-stable</p>
             </div>
           </header>
 

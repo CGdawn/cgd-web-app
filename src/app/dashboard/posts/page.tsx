@@ -5,12 +5,12 @@ import { useState, useMemo } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { 
-  Plus, MoreVertical, Clock, CheckCircle2, 
-  FileText, Edit, Trash2, Eye, Search, Loader2 
+  Plus, Clock, CheckCircle2, 
+  FileText, Edit, Trash2, Eye, Search, Loader2, ShieldAlert
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { useFirestore, useCollection, useUser } from "@/firebase";
+import { useFirestore, useCollection, useUser, useDoc } from "@/firebase";
 import { collection, query, orderBy, deleteDoc, doc, setDoc, serverTimestamp } from "firebase/firestore";
 import { 
   Dialog, 
@@ -30,22 +30,34 @@ export default function PostsManagementPage() {
   const [editingPost, setEditingPost] = useState<any>(null);
   const [postData, setPostData] = useState({ title: "", excerpt: "", content: "", category: "Tech", imageUrl: "" });
 
+  const userRef = useMemo(() => user ? doc(db, "users", user.uid) : null, [db, user]);
+  const { data: profile } = useDoc(userRef);
+
   const postsQuery = useMemo(() => {
     return query(collection(db, "posts"), orderBy("createdAt", "desc"));
   }, [db]);
 
   const { data: posts, loading } = useCollection(postsQuery);
 
+  const canCreate = profile?.role === "super-admin" || profile?.role === "admin";
+  const canDelete = profile?.role === "super-admin";
+
   async function handleSavePost() {
-    if (!user) return;
+    if (!user || !canCreate) return;
     const slug = postData.title.toLowerCase().replace(/ /g, "-").replace(/[^\w-]+/g, "");
     const postRef = editingPost ? doc(db, "posts", editingPost.id) : doc(collection(db, "posts"));
     
+    // Admins can only edit their own posts
+    if (editingPost && profile?.role === "admin" && editingPost.authorId !== user.uid) {
+      alert("Unauthorized: You can only reconfigure your own transmissions.");
+      return;
+    }
+
     await setDoc(postRef, {
       ...postData,
       slug,
       authorId: user.uid,
-      authorName: user.displayName || "Donald Attah",
+      authorName: user.displayName || "Author",
       published: true,
       updatedAt: serverTimestamp(),
       ...(editingPost ? {} : { 
@@ -61,13 +73,21 @@ export default function PostsManagementPage() {
     setPostData({ title: "", excerpt: "", content: "", category: "Tech", imageUrl: "" });
   }
 
-  async function handleDeletePost(id: string) {
-    if (confirm("Are you sure you want to delete this transmission?")) {
-      await deleteDoc(doc(db, "posts", id));
+  async function handleDeletePost(post: any) {
+    if (!canDelete) {
+      alert("Unauthorized: Only the Super Admin can decommissioning records completely.");
+      return;
+    }
+    if (confirm("Are you sure you want to delete this transmission? This cannot be undone.")) {
+      await deleteDoc(doc(db, "posts", post.id));
     }
   }
 
   function openEdit(post: any) {
+    if (profile?.role === "admin" && post.authorId !== user?.uid) {
+      alert("Unauthorized: You can only edit your own posts.");
+      return;
+    }
     setEditingPost(post);
     setPostData({
       title: post.title,
@@ -79,85 +99,96 @@ export default function PostsManagementPage() {
     setIsCreating(true);
   }
 
+  if (profile?.role === "staff" || profile?.role === "client") {
+    return (
+      <div className="h-full flex flex-col items-center justify-center space-y-4">
+        <ShieldAlert className="w-16 h-16 text-primary" />
+        <h2 className="text-2xl font-headline font-bold text-white">Access Restricted</h2>
+        <p className="text-muted-foreground">Only Admins and the Super Admin can access the Content Nexus.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-8 pb-20">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold font-headline text-white">Content Nexus</h1>
-          <p className="text-muted-foreground">Manage your articles, drafts, and community engagement.</p>
+          <p className="text-muted-foreground">Manage articles, drafts, and system-wide communications.</p>
         </div>
-        <Dialog open={isCreating} onOpenChange={(open) => {
-          setIsCreating(open);
-          if (!open) {
-            setEditingPost(null);
-            setPostData({ title: "", excerpt: "", content: "", category: "Tech", imageUrl: "" });
-          }
-        }}>
-          <DialogTrigger asChild>
-            <Button className="bg-primary hover:bg-primary/90 text-white rounded-xl shadow-lg shadow-primary/20">
-              <Plus className="w-4 h-4 mr-2" /> New Transmission
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="glass border-white/10 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle className="text-2xl font-headline">
-                {editingPost ? "Reconfigure Post" : "Initialize Post"}
-              </DialogTitle>
-            </DialogHeader>
-            <div className="space-y-6 py-4">
-              <div className="space-y-2">
-                <Label>Title</Label>
-                <Input 
-                  value={postData.title}
-                  onChange={(e) => setPostData({ ...postData, title: e.target.value })}
-                  placeholder="The Future of AI in Lagos..." 
-                  className="bg-white/5 border-white/10"
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Category</Label>
-                  <Input 
-                    value={postData.category}
-                    onChange={(e) => setPostData({ ...postData, category: e.target.value })}
-                    className="bg-white/5 border-white/10"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Cover Image URL</Label>
-                  <Input 
-                    value={postData.imageUrl}
-                    onChange={(e) => setPostData({ ...postData, imageUrl: e.target.value })}
-                    placeholder="https://picsum.photos/..."
-                    className="bg-white/5 border-white/10"
-                  />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label>Excerpt</Label>
-                <Textarea 
-                  value={postData.excerpt}
-                  onChange={(e) => setPostData({ ...postData, excerpt: e.target.value })}
-                  className="bg-white/5 border-white/10 h-20"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Main Content</Label>
-                <Textarea 
-                  value={postData.content}
-                  onChange={(e) => setPostData({ ...postData, content: e.target.value })}
-                  className="bg-white/5 border-white/10 h-64"
-                />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button variant="ghost" onClick={() => setIsCreating(false)}>Cancel</Button>
-              <Button onClick={handleSavePost} className="bg-primary shadow-lg shadow-primary/20">
-                {editingPost ? "Update Record" : "Publish Transmission"}
+        {canCreate && (
+          <Dialog open={isCreating} onOpenChange={(open) => {
+            setIsCreating(open);
+            if (!open) {
+              setEditingPost(null);
+              setPostData({ title: "", excerpt: "", content: "", category: "Tech", imageUrl: "" });
+            }
+          }}>
+            <DialogTrigger asChild>
+              <Button className="bg-primary hover:bg-primary/90 text-white rounded-xl shadow-lg shadow-primary/20">
+                <Plus className="w-4 h-4 mr-2" /> New Transmission
               </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+            </DialogTrigger>
+            <DialogContent className="glass border-white/10 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle className="text-2xl font-headline">
+                  {editingPost ? "Reconfigure Post" : "Initialize Post"}
+                </DialogTitle>
+              </DialogHeader>
+              <div className="space-y-6 py-4">
+                <div className="space-y-2">
+                  <Label>Title</Label>
+                  <Input 
+                    value={postData.title}
+                    onChange={(e) => setPostData({ ...postData, title: e.target.value })}
+                    placeholder="The Future of AI in Lagos..." 
+                    className="bg-white/5 border-white/10"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Category</Label>
+                    <Input 
+                      value={postData.category}
+                      onChange={(e) => setPostData({ ...postData, category: e.target.value })}
+                      className="bg-white/5 border-white/10"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Cover Image URL</Label>
+                    <Input 
+                      value={postData.imageUrl}
+                      onChange={(e) => setPostData({ ...postData, imageUrl: e.target.value })}
+                      placeholder="https://picsum.photos/..."
+                      className="bg-white/5 border-white/10"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label>Excerpt</Label>
+                  <Textarea 
+                    value={postData.excerpt}
+                    onChange={(e) => setPostData({ ...postData, excerpt: e.target.value })}
+                    className="bg-white/5 border-white/10 h-20"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Main Content</Label>
+                  <Textarea 
+                    value={postData.content}
+                    onChange={(e) => setPostData({ ...postData, content: e.target.value })}
+                    className="bg-white/5 border-white/10 h-64"
+                  />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button onClick={handleSavePost} className="bg-primary shadow-lg shadow-primary/20">
+                  {editingPost ? "Update Record" : "Publish Transmission"}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -177,9 +208,9 @@ export default function PostsManagementPage() {
                 {posts?.map((post) => (
                   <div key={post.id} className="p-6 flex items-center justify-between group hover:bg-white/5 transition-colors">
                     <div className="flex gap-4 items-center overflow-hidden">
-                      <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20 shrink-0">
+                      <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20 shrink-0 overflow-hidden">
                         {post.imageUrl ? (
-                          <img src={post.imageUrl} className="w-full h-full object-cover rounded-xl" />
+                          <img src={post.imageUrl} className="w-full h-full object-cover" />
                         ) : (
                           <FileText className="w-5 h-5 text-primary" />
                         )}
@@ -197,18 +228,14 @@ export default function PostsManagementPage() {
                         <a href={`/blog/${post.slug}`} target="_blank"><Eye className="w-4 h-4" /></a>
                       </Button>
                       <Button variant="ghost" size="icon" onClick={() => openEdit(post)} className="h-8 w-8 text-white/40 hover:text-white"><Edit className="w-4 h-4" /></Button>
-                      <Button onClick={() => handleDeletePost(post.id)} variant="ghost" size="icon" className="h-8 w-8 text-white/40 hover:text-red-400">
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
+                      {canDelete && (
+                        <Button onClick={() => handleDeletePost(post)} variant="ghost" size="icon" className="h-8 w-8 text-white/40 hover:text-red-400">
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      )}
                     </div>
                   </div>
                 ))}
-                {!posts?.length && (
-                  <div className="p-20 text-center space-y-4">
-                    <FileText className="w-12 h-12 text-muted-foreground mx-auto opacity-10" />
-                    <p className="text-muted-foreground font-headline uppercase tracking-widest text-xs">No transmissions broadcasted yet.</p>
-                  </div>
-                )}
               </div>
             )}
           </CardContent>
@@ -216,24 +243,18 @@ export default function PostsManagementPage() {
 
         <Card className="glass border-white/5 h-fit">
           <CardHeader>
-            <CardTitle className="text-lg font-headline text-white">Engagement Metrics</CardTitle>
+            <CardTitle className="text-lg font-headline text-white">Nexus Metrics</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div className="p-4 rounded-2xl bg-white/5 border border-white/5 space-y-1">
-              <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Total Impressions</p>
-              <h3 className="text-2xl font-bold text-white">12,408</h3>
-              <div className="flex items-center gap-1 text-[10px] text-green-400 font-bold mt-2">
-                <CheckCircle2 className="w-3 h-3" /> +12% from last week
-              </div>
-            </div>
-            <div className="p-4 rounded-2xl bg-white/5 border border-white/5 space-y-1">
+             <div className="p-4 rounded-2xl bg-white/5 border border-white/5 space-y-1">
               <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Global Ranking</p>
               <h3 className="text-2xl font-bold text-secondary">#42</h3>
               <p className="text-[10px] text-muted-foreground mt-2">Top 5% in tech category</p>
             </div>
-            <Button variant="outline" className="w-full glass border-white/10 rounded-xl h-12 uppercase text-[10px] tracking-[0.2em] font-bold">
-              View Detailed Analytics
-            </Button>
+            <div className="p-4 rounded-2xl bg-white/5 border border-white/5 space-y-1">
+              <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Active Discussions</p>
+              <h3 className="text-2xl font-bold text-white">{posts?.reduce((acc, p) => acc + (p.commentsCount || 0), 0) || 0}</h3>
+            </div>
           </CardContent>
         </Card>
       </div>
