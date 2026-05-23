@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useMemo } from "react";
@@ -33,9 +32,11 @@ export default function PostsManagementPage() {
   const userRef = useMemo(() => user ? doc(db, "users", user.uid) : null, [db, user]);
   const { data: profile } = useDoc(userRef);
 
+  // Only query posts if authorized to manage them (Admin or Super Admin)
   const postsQuery = useMemo(() => {
+    if (profile?.role !== "super-admin" && profile?.role !== "admin") return null;
     return query(collection(db, "posts"), orderBy("createdAt", "desc"));
-  }, [db]);
+  }, [db, profile]);
 
   const { data: posts, loading } = useCollection(postsQuery);
 

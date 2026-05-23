@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useMemo } from "react";
@@ -27,7 +26,11 @@ export default function UserManagementPage() {
   const currentUserRef = useMemo(() => currentUser ? doc(db, "users", currentUser.uid) : null, [db, currentUser]);
   const { data: profile } = useDoc(currentUserRef);
 
-  const usersQuery = useMemo(() => query(collection(db, "users"), orderBy("createdAt", "desc")), [db]);
+  // Only allow querying users if the current user is a super-admin
+  const usersQuery = useMemo(() => {
+    if (profile?.role !== "super-admin") return null;
+    return query(collection(db, "users"), orderBy("createdAt", "desc"));
+  }, [db, profile]);
   const { data: allUsers, loading } = useCollection(usersQuery);
 
   const filteredUsers = useMemo(() => {

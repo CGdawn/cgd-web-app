@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useMemo } from "react";
@@ -34,22 +33,28 @@ export default function DashboardOverview() {
   const { data: profile } = useDoc(userRef);
 
   // Dynamic stats based on role
-  const staffQuery = useMemo(() => query(collection(db, "users"), where("role", "==", "staff")), [db]);
+  // Only Super Admin can see global staff counts
+  const staffQuery = useMemo(() => {
+    if (profile?.role !== "super-admin") return null;
+    return query(collection(db, "users"), where("role", "==", "staff"));
+  }, [db, profile]);
   const { data: staffCount } = useCollection(staffQuery);
 
+  // Tasks visibility: Super Admin sees all, Staff sees own, Clients see none
   const tasksQuery = useMemo(() => {
     if (!profile || !user) return null;
-    return profile?.role === "staff" 
-      ? query(collection(db, "tasks"), where("assignedToId", "==", user.uid)) 
-      : collection(db, "tasks");
+    if (profile.role === "super-admin") return collection(db, "tasks");
+    if (profile.role === "staff") return query(collection(db, "tasks"), where("assignedToId", "==", user.uid));
+    return null;
   }, [db, profile, user]);
   const { data: tasks } = useCollection(tasksQuery);
 
+  // Jobs visibility: Super Admin sees all, Clients see own, Staff see none
   const jobsQuery = useMemo(() => {
     if (!profile || !user) return null;
-    return profile?.role === "client" 
-      ? query(collection(db, "jobRequests"), where("clientId", "==", user.uid)) 
-      : collection(db, "jobRequests");
+    if (profile.role === "super-admin") return collection(db, "jobRequests");
+    if (profile.role === "client") return query(collection(db, "jobRequests"), where("clientId", "==", user.uid));
+    return null;
   }, [db, profile, user]);
   const { data: jobs } = useCollection(jobsQuery);
 

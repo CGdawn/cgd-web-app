@@ -11,6 +11,7 @@
  * - Tasks: Super Admin: Full Access. Staff: Read/Update assigned tasks.
  * - JobRequests: Super Admin: Full Access. Clients: Read/Create own requests.
  * - Products: Public Read. Super Admin: Full Access.
+ * - Update: 2024-05-22: Refined list permissions for staff and clients.
  */
 
 import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
