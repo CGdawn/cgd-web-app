@@ -5,19 +5,22 @@ import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarFooter,
 import { 
   LayoutDashboard, Users, FolderKanban, GraduationCap, 
   Briefcase, Settings, LogOut, Bell, MessageSquare,
-  FileText
+  FileText, ShoppingBag
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { useUser } from "@/firebase";
+import { useUser, useFirestore, useDoc } from "@/firebase";
 import { PlaceHolderImages } from "@/app/lib/placeholder-images";
+import { doc } from "firebase/firestore";
+import { useMemo } from "react";
 
 const navItems = [
   { icon: LayoutDashboard, label: "Overview", href: "/dashboard" },
   { icon: FolderKanban, label: "Projects", href: "/dashboard/projects" },
-  { icon: FileText, label: "Posts", href: "/dashboard/posts" },
+  { icon: FileText, label: "Blog Posts", href: "/dashboard/posts" },
+  { icon: ShoppingBag, label: "Store Inventory", href: "/dashboard/store" },
   { icon: Users, label: "Teams", href: "/dashboard/staff" },
   { icon: MessageSquare, label: "Messages", href: "/dashboard/messages" },
   { icon: GraduationCap, label: "Learning", href: "/dashboard/learning" },
@@ -27,7 +30,13 @@ const navItems = [
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { user } = useUser();
+  const db = useFirestore();
   const logo = PlaceHolderImages.find(img => img.id === "site-logo");
+
+  const userRef = useMemo(() => user ? doc(db, "users", user.uid) : null, [db, user]);
+  const { data: profile } = useDoc(userRef);
+
+  const displayRole = profile?.role || "Super Admin";
 
   return (
     <SidebarProvider>
@@ -76,7 +85,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 </Avatar>
                 <div className="overflow-hidden">
                   <p className="text-xs font-bold text-white truncate">{user?.displayName || "Donald Attah"}</p>
-                  <p className="text-[10px] text-muted-foreground truncate">Super Admin</p>
+                  <p className="text-[10px] text-muted-foreground truncate uppercase tracking-widest">{displayRole}</p>
                 </div>
               </div>
               <Button variant="ghost" className="w-full justify-start text-white/60 hover:text-red-400 hover:bg-red-400/10 h-10 rounded-xl" asChild>

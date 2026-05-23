@@ -6,13 +6,12 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { 
   Plus, MoreVertical, Clock, CheckCircle2, 
-  FileText, Edit, Trash2, Eye, LayoutGrid, 
-  List, Search, Loader2 
+  FileText, Edit, Trash2, Eye, Search, Loader2 
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { useFirestore, useCollection, useUser } from "@/firebase";
-import { collection, query, where, orderBy, deleteDoc, doc, setDoc, serverTimestamp } from "firebase/firestore";
+import { collection, query, orderBy, deleteDoc, doc, setDoc, serverTimestamp } from "firebase/firestore";
 import { 
   Dialog, 
   DialogContent, 
@@ -28,41 +27,56 @@ export default function PostsManagementPage() {
   const { user } = useUser();
   const db = useFirestore();
   const [isCreating, setIsCreating] = useState(false);
-  const [newPost, setNewPost] = useState({ title: "", excerpt: "", content: "", category: "Tech" });
+  const [editingPost, setEditingPost] = useState<any>(null);
+  const [postData, setPostData] = useState({ title: "", excerpt: "", content: "", category: "Tech", imageUrl: "" });
 
   const postsQuery = useMemo(() => {
-    if (!user) return null;
-    return query(collection(db, "posts"), where("authorId", "==", user.uid), orderBy("createdAt", "desc"));
-  }, [db, user]);
+    return query(collection(db, "posts"), orderBy("createdAt", "desc"));
+  }, [db]);
 
   const { data: posts, loading } = useCollection(postsQuery);
 
-  async function handleCreatePost() {
+  async function handleSavePost() {
     if (!user) return;
-    const slug = newPost.title.toLowerCase().replace(/ /g, "-").replace(/[^\w-]+/g, "");
-    const postRef = doc(collection(db, "posts"));
+    const slug = postData.title.toLowerCase().replace(/ /g, "-").replace(/[^\w-]+/g, "");
+    const postRef = editingPost ? doc(db, "posts", editingPost.id) : doc(collection(db, "posts"));
     
     await setDoc(postRef, {
-      ...newPost,
+      ...postData,
       slug,
       authorId: user.uid,
-      authorName: user.displayName || "Admin",
+      authorName: user.displayName || "Donald Attah",
       published: true,
-      featured: false,
-      likesCount: 0,
-      commentsCount: 0,
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp()
-    });
+      updatedAt: serverTimestamp(),
+      ...(editingPost ? {} : { 
+        createdAt: serverTimestamp(),
+        likesCount: 0,
+        commentsCount: 0,
+        featured: false
+      })
+    }, { merge: true });
     
     setIsCreating(false);
-    setNewPost({ title: "", excerpt: "", content: "", category: "Tech" });
+    setEditingPost(null);
+    setPostData({ title: "", excerpt: "", content: "", category: "Tech", imageUrl: "" });
   }
 
   async function handleDeletePost(id: string) {
     if (confirm("Are you sure you want to delete this transmission?")) {
       await deleteDoc(doc(db, "posts", id));
     }
+  }
+
+  function openEdit(post: any) {
+    setEditingPost(post);
+    setPostData({
+      title: post.title,
+      excerpt: post.excerpt,
+      content: post.content,
+      category: post.category,
+      imageUrl: post.imageUrl || ""
+    });
+    setIsCreating(true);
   }
 
   return (
@@ -72,7 +86,13 @@ export default function PostsManagementPage() {
           <h1 className="text-3xl font-bold font-headline text-white">Content Nexus</h1>
           <p className="text-muted-foreground">Manage your articles, drafts, and community engagement.</p>
         </div>
-        <Dialog open={isCreating} onOpenChange={setIsCreating}>
+        <Dialog open={isCreating} onOpenChange={(open) => {
+          setIsCreating(open);
+          if (!open) {
+            setEditingPost(null);
+            setPostData({ title: "", excerpt: "", content: "", category: "Tech", imageUrl: "" });
+          }
+        }}>
           <DialogTrigger asChild>
             <Button className="bg-primary hover:bg-primary/90 text-white rounded-xl shadow-lg shadow-primary/20">
               <Plus className="w-4 h-4 mr-2" /> New Transmission
@@ -80,14 +100,16 @@ export default function PostsManagementPage() {
           </DialogTrigger>
           <DialogContent className="glass border-white/10 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle className="text-2xl font-headline">Initialize Post</DialogTitle>
+              <DialogTitle className="text-2xl font-headline">
+                {editingPost ? "Reconfigure Post" : "Initialize Post"}
+              </DialogTitle>
             </DialogHeader>
             <div className="space-y-6 py-4">
               <div className="space-y-2">
                 <Label>Title</Label>
                 <Input 
-                  value={newPost.title}
-                  onChange={(e) => setNewPost({ ...newPost, title: e.target.value })}
+                  value={postData.title}
+                  onChange={(e) => setPostData({ ...postData, title: e.target.value })}
                   placeholder="The Future of AI in Lagos..." 
                   className="bg-white/5 border-white/10"
                 />
@@ -96,8 +118,17 @@ export default function PostsManagementPage() {
                 <div className="space-y-2">
                   <Label>Category</Label>
                   <Input 
-                    value={newPost.category}
-                    onChange={(e) => setNewPost({ ...newPost, category: e.target.value })}
+                    value={postData.category}
+                    onChange={(e) => setPostData({ ...postData, category: e.target.value })}
+                    className="bg-white/5 border-white/10"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Cover Image URL</Label>
+                  <Input 
+                    value={postData.imageUrl}
+                    onChange={(e) => setPostData({ ...postData, imageUrl: e.target.value })}
+                    placeholder="https://picsum.photos/..."
                     className="bg-white/5 border-white/10"
                   />
                 </div>
@@ -105,23 +136,25 @@ export default function PostsManagementPage() {
               <div className="space-y-2">
                 <Label>Excerpt</Label>
                 <Textarea 
-                  value={newPost.excerpt}
-                  onChange={(e) => setNewPost({ ...newPost, excerpt: e.target.value })}
+                  value={postData.excerpt}
+                  onChange={(e) => setPostData({ ...postData, excerpt: e.target.value })}
                   className="bg-white/5 border-white/10 h-20"
                 />
               </div>
               <div className="space-y-2">
                 <Label>Main Content</Label>
                 <Textarea 
-                  value={newPost.content}
-                  onChange={(e) => setNewPost({ ...newPost, content: e.target.value })}
+                  value={postData.content}
+                  onChange={(e) => setPostData({ ...postData, content: e.target.value })}
                   className="bg-white/5 border-white/10 h-64"
                 />
               </div>
             </div>
             <DialogFooter>
               <Button variant="ghost" onClick={() => setIsCreating(false)}>Cancel</Button>
-              <Button onClick={handleCreatePost} className="bg-primary shadow-lg shadow-primary/20">Publish Transmission</Button>
+              <Button onClick={handleSavePost} className="bg-primary shadow-lg shadow-primary/20">
+                {editingPost ? "Update Record" : "Publish Transmission"}
+              </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -130,9 +163,7 @@ export default function PostsManagementPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card className="glass border-white/5 lg:col-span-2">
           <CardHeader className="flex flex-row items-center justify-between border-b border-white/5 pb-6">
-            <div className="space-y-1">
-              <CardTitle className="text-lg font-headline">Recent Transmissions</CardTitle>
-            </div>
+            <CardTitle className="text-lg font-headline">Recent Transmissions</CardTitle>
             <div className="relative w-64">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
               <Input placeholder="Filter posts..." className="pl-9 h-9 text-xs bg-white/5 border-white/10 rounded-lg" />
@@ -147,14 +178,17 @@ export default function PostsManagementPage() {
                   <div key={post.id} className="p-6 flex items-center justify-between group hover:bg-white/5 transition-colors">
                     <div className="flex gap-4 items-center overflow-hidden">
                       <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20 shrink-0">
-                        <FileText className="w-5 h-5 text-primary" />
+                        {post.imageUrl ? (
+                          <img src={post.imageUrl} className="w-full h-full object-cover rounded-xl" />
+                        ) : (
+                          <FileText className="w-5 h-5 text-primary" />
+                        )}
                       </div>
                       <div className="overflow-hidden">
                         <h4 className="font-bold text-white text-sm truncate">{post.title}</h4>
                         <div className="flex items-center gap-3 text-[10px] text-muted-foreground uppercase tracking-widest mt-1">
                           <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {new Date(post.createdAt?.seconds * 1000).toLocaleDateString()}</span>
                           <span className="text-primary font-bold">{post.category}</span>
-                          <span className="flex items-center gap-1"><Heart className="w-3 h-3 text-red-500" /> {post.likesCount || 0}</span>
                         </div>
                       </div>
                     </div>
@@ -162,7 +196,7 @@ export default function PostsManagementPage() {
                       <Button variant="ghost" size="icon" className="h-8 w-8 text-white/40 hover:text-white" asChild>
                         <a href={`/blog/${post.slug}`} target="_blank"><Eye className="w-4 h-4" /></a>
                       </Button>
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-white/40 hover:text-white"><Edit className="w-4 h-4" /></Button>
+                      <Button variant="ghost" size="icon" onClick={() => openEdit(post)} className="h-8 w-8 text-white/40 hover:text-white"><Edit className="w-4 h-4" /></Button>
                       <Button onClick={() => handleDeletePost(post.id)} variant="ghost" size="icon" className="h-8 w-8 text-white/40 hover:text-red-400">
                         <Trash2 className="w-4 h-4" />
                       </Button>
