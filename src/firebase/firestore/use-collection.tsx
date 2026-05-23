@@ -28,10 +28,16 @@ export function useCollection(query: Query | null) {
       },
       async (err) => {
         if (err.code === 'permission-denied') {
+          // Determine path if possible, or use 'collection-query'
+          const path = (query as any)._query?.path?.segments?.join('/') || 'collection-query';
+          
           const permissionError = new FirestorePermissionError({
-            path: 'query',
+            path: path,
             operation: 'list',
           });
+          
+          // Only emit global error if not in a transient state
+          // For now, we still emit but the rules fix should prevent most cases
           errorEmitter.emit('permission-error', permissionError);
           setError(permissionError);
         } else {

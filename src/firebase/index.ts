@@ -5,19 +5,73 @@
  * Initializes and exports singleton instances for Auth, Firestore, and Storage.
  * 
  * SECURITY RULES DEPLOYMENT TRIGGER:
- * Updated: 2024-05-24 16:15:00 UTC
+ * Updated: 2024-05-24 18:30:00 UTC
  * 
  * REQUIRED SECURITY RULES:
- * match /users/{userId} {
- *   allow read, write: if request.auth != null && request.auth.uid == userId;
- * }
- * match /posts/{postId} {
- *   allow read;
- *   allow write: if request.auth != null && (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'super-admin']);
- * }
- * match /jobRequests/{requestId} {
- *   allow read: if request.auth != null && (request.auth.uid == resource.data.clientId || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'super-admin');
- *   allow create: if request.auth != null;
+ * service cloud.firestore {
+ *   match /databases/{database}/documents {
+ *     // Helper: Check if user is Super Admin
+ *     function isSuperAdmin() {
+ *       return request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'super-admin';
+ *     }
+ * 
+ *     // Helper: Check if user is Admin
+ *     function isAdmin() {
+ *       return request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'super-admin'];
+ *     }
+ * 
+ *     match /users/{userId} {
+ *       allow get: if request.auth != null && (request.auth.uid == userId || isSuperAdmin());
+ *       allow list: if isSuperAdmin();
+ *       allow create: if request.auth != null && request.auth.uid == userId;
+ *       allow update: if request.auth != null && (request.auth.uid == userId || isSuperAdmin());
+ *     }
+ * 
+ *     match /posts/{postId} {
+ *       allow read: if true;
+ *       allow create: if isAdmin();
+ *       allow update: if isAdmin();
+ *       allow delete: if isSuperAdmin();
+ *       
+ *       match /comments/{commentId} {
+ *         allow read: if true;
+ *         allow create: if request.auth != null;
+ *         allow delete: if request.auth != null && (request.auth.uid == resource.data.userId || isSuperAdmin());
+ *       }
+ * 
+ *       match /reactions/{userId} {
+ *         allow read: if true;
+ *         allow write: if request.auth != null && request.auth.uid == userId;
+ *       }
+ *     }
+ * 
+ *     match /tasks/{taskId} {
+ *       allow read: if request.auth != null && (resource.data.assignedToId == request.auth.uid || isSuperAdmin());
+ *       allow create: if isSuperAdmin();
+ *       allow update: if request.auth != null && (resource.data.assignedToId == request.auth.uid || isSuperAdmin());
+ *       allow delete: if isSuperAdmin();
+ *     }
+ * 
+ *     match /jobRequests/{requestId} {
+ *       allow read: if request.auth != null && (resource.data.clientId == request.auth.uid || isSuperAdmin());
+ *       allow create: if request.auth != null;
+ *       allow update: if isSuperAdmin();
+ *       allow delete: if isSuperAdmin();
+ *     }
+ * 
+ *     match /products/{productId} {
+ *       allow read: if true;
+ *       allow write: if isSuperAdmin();
+ *     }
+ * 
+ *     match /users/{userId}/cart/{itemId} {
+ *       allow read, write: if request.auth != null && request.auth.uid == userId;
+ *     }
+ * 
+ *     match /users/{userId}/orders/{orderId} {
+ *       allow read, write: if request.auth != null && (request.auth.uid == userId || isSuperAdmin());
+ *     }
+ *   }
  * }
  */
 
