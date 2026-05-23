@@ -5,7 +5,7 @@ import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarFooter,
 import { 
   LayoutDashboard, Users, FolderKanban, GraduationCap, 
   Briefcase, Settings, LogOut, Bell, MessageSquare,
-  FileText, ShoppingBag, ClipboardList, Zap
+  FileText, ShoppingBag, ClipboardList, Zap, Loader2
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -13,16 +13,44 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useUser, useFirestore, useDoc } from "@/firebase";
 import { PlaceHolderImages } from "@/app/lib/placeholder-images";
-import { doc } from "firebase/firestore";
-import { useMemo } from "react";
+import { doc, setDoc, serverTimestamp } from "firebase/firestore";
+import { useMemo, useEffect } from "react";
+import { signOut } from "firebase/auth";
+import { useAuth } from "@/firebase";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const { user } = useUser();
+  const { user, loading: authLoading } = useUser();
   const db = useFirestore();
+  const auth = useAuth();
   const logo = PlaceHolderImages.find(img => img.id === "site-logo");
 
   const userRef = useMemo(() => user ? doc(db, "users", user.uid) : null, [db, user]);
-  const { data: profile } = useDoc(userRef);
+  const { data: profile, loading: profileLoading } = useDoc(userRef);
+
+  // Role Bootstrapper for Prototype
+  useEffect(() => {
+    if (user && !profile && !profileLoading && !authLoading) {
+      const email = user.email?.toLowerCase();
+      let role = "client"; // Default
+      
+      // Auto-assign roles for demo accounts
+      if (email === "superadmin@cgdawn.org") role = "super-admin";
+      else if (email === "admin@cgdawn.org") role = "admin";
+      else if (email === "staff@cgdawn.org") role = "staff";
+      else if (email === "client@cgdawn.org") role = "client";
+
+      const newUserProfile = {
+        uid: user.uid,
+        email: user.email,
+        displayName: user.displayName || email?.split('@')[0] || "Explorer",
+        avatar: user.photoURL || "",
+        role: role,
+        createdAt: serverTimestamp()
+      };
+
+      setDoc(doc(db, "users", user.uid), newUserProfile, { merge: true });
+    }
+  }, [user, profile, profileLoading, authLoading, db]);
 
   const role = profile?.role || "client";
 
@@ -70,6 +98,25 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     return items;
   }, [role]);
 
+  const handleSignOut = async () => {
+    await signOut(auth);
+    window.location.href = "/auth/login";
+  };
+
+  if (authLoading || (user && profileLoading)) {
+    return (
+      <div className="min-h-screen bg-[#0D0B10] flex flex-col items-center justify-center gap-4">
+        <Loader2 className="w-12 h-12 text-primary animate-spin" />
+        <p className="text-muted-foreground font-headline uppercase tracking-[0.3em] text-[10px]">Synchronizing Interface...</p>
+      </div>
+    );
+  }
+
+  if (!user) {
+    if (typeof window !== "undefined") window.location.href = "/auth/login";
+    return null;
+  }
+
   return (
     <SidebarProvider>
       <div className="flex min-h-screen bg-[#0D0B10] w-full">
@@ -112,17 +159,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <div className="flex items-center gap-3">
                 <Avatar className="w-10 h-10 border border-primary/20">
                   <AvatarImage src={user?.photoURL || ""} />
-                  <AvatarFallback className="bg-primary/10 text-primary">{user?.displayName?.[0] || "A"}</AvatarFallback>
+                  <AvatarFallback className="bg-primary/10 text-primary">{user?.displayName?.[0] || user?.email?.[0]?.toUpperCase() || "A"}</AvatarFallback>
                 </Avatar>
                 <div className="overflow-hidden">
-                  <p className="text-xs font-bold text-white truncate">{user?.displayName || "User"}</p>
+                  <p className="text-xs font-bold text-white truncate">{user?.displayName || user?.email?.split('@')[0]}</p>
                   <p className="text-[10px] text-muted-foreground truncate uppercase tracking-widest">{role.replace("-", " ")}</p>
                 </div>
               </div>
-              <Button variant="ghost" className="w-full justify-start text-white/60 hover:text-red-400 hover:bg-red-400/10 h-10 rounded-xl" asChild>
-                <Link href="/auth/login">
-                  <LogOut className="w-4 h-4 mr-2" /> Sign Out
-                </Link>
+              <Button 
+                variant="ghost" 
+                onClick={handleSignOut}
+                className="w-full justify-start text-white/60 hover:text-red-400 hover:bg-red-400/10 h-10 rounded-xl"
+              >
+                <LogOut className="w-4 h-4 mr-2" /> Sign Out
               </Button>
             </div>
           </SidebarFooter>
