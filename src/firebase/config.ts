@@ -2,7 +2,7 @@
 
 /**
  * @fileOverview Production Firebase Configuration
- * Initialized with valid project credentials for Cyber Generation Dawn.
+ * Loads credentials from environment variables.
  */
 
 export const firebaseConfig = {

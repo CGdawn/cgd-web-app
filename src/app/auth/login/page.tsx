@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from "react";
@@ -8,10 +7,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Github, Mail, Lock, Info, Key, ShieldCheck, User, Briefcase } from "lucide-react";
+import { Github, Mail, Lock, Info, Key, ShieldCheck, User, Briefcase, Loader2 } from "lucide-react";
 import { PlaceHolderImages } from "@/app/lib/placeholder-images";
 import { useAuth } from "@/firebase";
-import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, GithubAuthProvider } from "firebase/auth";
+import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, GithubAuthProvider, createUserWithEmailAndPassword } from "firebase/auth";
 import { useToast } from "@/hooks/use-toast";
 
 const DEMO_ACCOUNTS = [
@@ -34,7 +33,17 @@ export default function LoginPage() {
     e.preventDefault();
     setIsLoading(true);
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      // Attempt login
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+      } catch (err: any) {
+        // If demo user doesn't exist, create it for this prototype session
+        if (err.code === 'auth/user-not-found' && email.includes('@cgdawn.org')) {
+          await createUserWithEmailAndPassword(auth, email, password);
+        } else {
+          throw err;
+        }
+      }
       window.location.href = "/dashboard";
     } catch (error: any) {
       toast({
@@ -104,7 +113,6 @@ export default function LoginPage() {
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
                   <Label htmlFor="password">Security Key (Password)</Label>
-                  <Link href="#" className="text-xs text-primary hover:underline">Forgot key?</Link>
                 </div>
                 <div className="relative">
                   <Lock className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
@@ -127,7 +135,7 @@ export default function LoginPage() {
                 className="w-full bg-primary hover:bg-primary/90 text-white h-12 rounded-xl"
                 disabled={isLoading}
               >
-                {isLoading ? "Authenticating..." : "Establish Connection"}
+                {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Establish Connection"}
               </Button>
             </form>
 
@@ -136,7 +144,7 @@ export default function LoginPage() {
                 <span className="w-full border-t border-white/5" />
               </div>
               <div className="relative flex justify-center text-[10px] uppercase">
-                <span className="bg-[#1A161E] px-2 text-muted-foreground tracking-widest">Global Auth Bridge</span>
+                <span className="bg-card px-2 text-muted-foreground tracking-widest">Global Auth Bridge</span>
               </div>
             </div>
 
@@ -165,7 +173,7 @@ export default function LoginPage() {
               <h3 className="font-headline font-bold uppercase tracking-widest text-sm">Demo Access Nexus</h3>
             </div>
             <p className="text-xs text-muted-foreground leading-relaxed">
-              If you haven't registered your official credentials yet, use these predefined identities to explore the ecosystem roles. Password for all: <span className="text-white font-bold">password123</span>
+              Select an identity to explore the ecosystem roles. Password for all: <span className="text-white font-bold">password123</span>
             </p>
             <div className="space-y-3">
               {DEMO_ACCOUNTS.map((acc) => (
@@ -188,7 +196,7 @@ export default function LoginPage() {
             </div>
             <div className="p-4 bg-primary/5 rounded-xl border border-primary/10">
               <p className="text-[10px] text-primary/80 leading-relaxed italic">
-                * Note: If signing in for the first time with these emails, ensure you have registered them on the join page or the system will automatically initialize them.
+                * Note: The first login will automatically provision your Firestore role.
               </p>
             </div>
           </div>
