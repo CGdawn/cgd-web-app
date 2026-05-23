@@ -3,6 +3,7 @@
 
 import { useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Users, FolderKanban, GraduationCap, TrendingUp, DollarSign, Activity, ClipboardList, ShieldCheck } from "lucide-react";
 import { 
   AreaChart, 
@@ -33,9 +34,24 @@ export default function DashboardOverview() {
   const { data: profile } = useDoc(userRef);
 
   // Dynamic stats based on role
-  const { data: staffCount } = useCollection(query(collection(db, "users"), where("role", "==", "staff")));
-  const { data: tasks } = useCollection(profile?.role === "staff" ? query(collection(db, "tasks"), where("assignedToId", "==", user?.uid)) : collection(db, "tasks"));
-  const { data: jobs } = useCollection(profile?.role === "client" ? query(collection(db, "jobRequests"), where("clientId", "==", user?.uid)) : collection(db, "jobRequests"));
+  const staffQuery = useMemo(() => query(collection(db, "users"), where("role", "==", "staff")), [db]);
+  const { data: staffCount } = useCollection(staffQuery);
+
+  const tasksQuery = useMemo(() => {
+    if (!profile || !user) return null;
+    return profile?.role === "staff" 
+      ? query(collection(db, "tasks"), where("assignedToId", "==", user.uid)) 
+      : collection(db, "tasks");
+  }, [db, profile, user]);
+  const { data: tasks } = useCollection(tasksQuery);
+
+  const jobsQuery = useMemo(() => {
+    if (!profile || !user) return null;
+    return profile?.role === "client" 
+      ? query(collection(db, "jobRequests"), where("clientId", "==", user.uid)) 
+      : collection(db, "jobRequests");
+  }, [db, profile, user]);
+  const { data: jobs } = useCollection(jobsQuery);
 
   const stats = useMemo(() => {
     if (profile?.role === "super-admin") {
