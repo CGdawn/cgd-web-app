@@ -1,4 +1,3 @@
-
 "use client";
 
 import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarFooter, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
@@ -25,11 +24,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const logo = PlaceHolderImages.find(img => img.id === "site-logo");
 
   const userRef = useMemo(() => user ? doc(db, "users", user.uid) : null, [db, user]);
-  const { data: profile, loading: profileLoading } = useDoc(userRef);
+  const { data: profile, loading: profileLoading, error: profileError } = useDoc(userRef);
 
   // Role Bootstrapper for Prototype
   useEffect(() => {
-    if (user && !profile && !profileLoading && !authLoading) {
+    // If auth is done, and there's no profile (or a permission error because it doesn't exist yet)
+    // we should attempt to seed the user document.
+    if (user && !authLoading && !profileLoading && (!profile || profileError)) {
       const email = user.email?.toLowerCase();
       let role = "client"; // Default
       
@@ -48,9 +49,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         createdAt: serverTimestamp()
       };
 
+      // Use setDoc to initialize or update the profile
       setDoc(doc(db, "users", user.uid), newUserProfile, { merge: true });
     }
-  }, [user, profile, profileLoading, authLoading, db]);
+  }, [user, profile, profileLoading, profileError, authLoading, db]);
 
   const role = profile?.role || "client";
 
@@ -103,7 +105,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     window.location.href = "/auth/login";
   };
 
-  if (authLoading || (user && profileLoading)) {
+  // Only block on auth loading. Profile loading can happen in the background.
+  if (authLoading) {
     return (
       <div className="min-h-screen bg-[#0D0B10] flex flex-col items-center justify-center gap-4">
         <Loader2 className="w-12 h-12 text-primary animate-spin" />

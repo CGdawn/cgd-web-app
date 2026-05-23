@@ -3,6 +3,14 @@
 /**
  * @fileOverview Firebase Modular SDK Entry Point
  * Initializes and exports singleton instances for Auth, Firestore, and Storage.
+ * 
+ * SECURITY RULES DEPLOYMENT TRIGGER:
+ * The following rules are required for the CyGen Dawn ecosystem:
+ * - Users: Read/Write own profile (/users/{userId}). Super Admin: Full Access.
+ * - Posts: Public Read. Admins: Create/Update. Super Admin: Full Access/Delete.
+ * - Tasks: Super Admin: Full Access. Staff: Read/Update assigned tasks.
+ * - JobRequests: Super Admin: Full Access. Clients: Read/Create own requests.
+ * - Products: Public Read. Super Admin: Full Access.
  */
 
 import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
