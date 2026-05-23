@@ -11,6 +11,7 @@ export function useDoc(docRef: DocumentReference | null) {
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
+    // Wait for the document reference to be provided
     if (!docRef) {
       setData(null);
       setLoading(false);
@@ -22,15 +23,21 @@ export function useDoc(docRef: DocumentReference | null) {
       docRef,
       (snapshot: DocumentSnapshot) => {
         setData(snapshot.exists() ? { id: snapshot.id, ...snapshot.data() } : null);
+        setError(null);
         setLoading(false);
       },
       async (err) => {
-        const permissionError = new FirestorePermissionError({
-          path: docRef.path,
-          operation: 'get',
-        });
-        errorEmitter.emit('permission-error', permissionError);
-        setError(err);
+        // Only emit if it's a real permission error and not just a missing document
+        if (err.code === 'permission-denied') {
+          const permissionError = new FirestorePermissionError({
+            path: docRef.path,
+            operation: 'get',
+          });
+          errorEmitter.emit('permission-error', permissionError);
+          setError(permissionError);
+        } else {
+          setError(err);
+        }
         setLoading(false);
       }
     );

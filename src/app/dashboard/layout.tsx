@@ -4,7 +4,7 @@ import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarFooter,
 import { 
   LayoutDashboard, Users, FolderKanban, GraduationCap, 
   Briefcase, Settings, LogOut, Bell, MessageSquare,
-  FileText, ShoppingBag, ClipboardList, Zap, Loader2
+  FileText, ShoppingBag, ClipboardList, Zap, Loader2, ShieldAlert
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -23,18 +23,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const auth = useAuth();
   const logo = PlaceHolderImages.find(img => img.id === "site-logo");
 
+  // Only create userRef if user is definitively logged in
   const userRef = useMemo(() => user ? doc(db, "users", user.uid) : null, [db, user]);
   const { data: profile, loading: profileLoading, error: profileError } = useDoc(userRef);
 
-  // Role Bootstrapper for Prototype
+  // Role Bootstrapper: Ensures user document exists in Firestore
   useEffect(() => {
-    // If auth is done, and there's no profile (or a permission error because it doesn't exist yet)
-    // we should attempt to seed the user document.
-    if (user && !authLoading && !profileLoading && (!profile || profileError)) {
+    if (user && !authLoading && !profileLoading && !profile) {
       const email = user.email?.toLowerCase();
-      let role = "client"; // Default
+      let role = "client"; // Default role
       
-      // Auto-assign roles for demo accounts
       if (email === "superadmin@cgdawn.org") role = "super-admin";
       else if (email === "admin@cgdawn.org") role = "admin";
       else if (email === "staff@cgdawn.org") role = "staff";
@@ -49,10 +47,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         createdAt: serverTimestamp()
       };
 
-      // Use setDoc to initialize or update the profile
       setDoc(doc(db, "users", user.uid), newUserProfile, { merge: true });
     }
-  }, [user, profile, profileLoading, profileError, authLoading, db]);
+  }, [user, profile, profileLoading, authLoading, db]);
 
   const role = profile?.role || "client";
 
@@ -105,7 +102,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     window.location.href = "/auth/login";
   };
 
-  // Only block on auth loading. Profile loading can happen in the background.
   if (authLoading) {
     return (
       <div className="min-h-screen bg-[#0D0B10] flex flex-col items-center justify-center gap-4">
@@ -118,6 +114,22 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   if (!user) {
     if (typeof window !== "undefined") window.location.href = "/auth/login";
     return null;
+  }
+
+  // Handle case where profile exists but permission error occurred initially
+  if (profileError && !profile) {
+    return (
+      <div className="min-h-screen bg-[#0D0B10] flex flex-col items-center justify-center p-8 text-center space-y-6">
+        <ShieldAlert className="w-16 h-16 text-primary" />
+        <h2 className="text-2xl font-headline font-bold text-white">Interface Lock</h2>
+        <p className="text-muted-foreground max-w-md">
+          Establishing your security clearance. This usually happens on your first connection to the nexus.
+        </p>
+        <Button onClick={() => window.location.reload()} variant="outline" className="glass">
+          Retry Connection
+        </Button>
+      </div>
+    );
   }
 
   return (
@@ -194,7 +206,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </header>
 
           <div className="flex-1 overflow-y-auto p-8 bg-background/50">
-            {children}
+            {profileLoading ? (
+              <div className="h-full flex flex-col items-center justify-center gap-4">
+                <Loader2 className="w-8 h-8 text-primary animate-spin" />
+                <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Loading Profile...</p>
+              </div>
+            ) : children}
           </div>
         </main>
       </div>

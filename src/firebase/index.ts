@@ -6,12 +6,12 @@
  * 
  * SECURITY RULES DEPLOYMENT TRIGGER:
  * The following rules are required for the CyGen Dawn ecosystem:
- * - Users: Read/Write own profile (/users/{userId}). Super Admin: Full Access.
+ * - Users: allow read, write: if request.auth.uid == userId;
  * - Posts: Public Read. Admins: Create/Update. Super Admin: Full Access/Delete.
  * - Tasks: Super Admin: Full Access. Staff: Read/Update assigned tasks.
  * - JobRequests: Super Admin: Full Access. Clients: Read/Create own requests.
  * - Products: Public Read. Super Admin: Full Access.
- * - Update: 2024-05-22: Refined list permissions for staff and clients.
+ * - Updated: 2024-05-23: Explicitly allowed users to read/write their own profile in /users/{userId}.
  */
 
 import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
