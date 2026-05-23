@@ -17,6 +17,7 @@ export function initializeFirebase(): {
   auth: Auth;
   storage: FirebaseStorage;
 } {
+  // Prevent duplicate initialization in development
   const firebaseApp = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
   const firestore = getFirestore(firebaseApp);
   const auth = getAuth(firebaseApp);
