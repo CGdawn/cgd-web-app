@@ -5,13 +5,14 @@
  * Initializes and exports singleton instances for Auth, Firestore, and Storage.
  * 
  * SECURITY RULES DEPLOYMENT TRIGGER:
+ * Updated: 2024-05-24 14:35:00 UTC
+ * 
  * The following rules are required for the CyGen Dawn ecosystem:
- * - Users: allow read, write: if request.auth.uid == userId;
+ * - Users: allow read, write: if request.auth != null && request.auth.uid == userId;
  * - Posts: Public Read. Admins: Create/Update. Super Admin: Full Access/Delete.
  * - Tasks: Super Admin: Full Access. Staff: Read/Update assigned tasks.
  * - JobRequests: Super Admin: Full Access. Clients: Read/Create own requests.
  * - Products: Public Read. Super Admin: Full Access.
- * - Updated: 2024-05-23: Explicitly allowed users to read/write their own profile in /users/{userId}.
  */
 
 import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';

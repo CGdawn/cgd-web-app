@@ -29,7 +29,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   // Role Bootstrapper: Ensures user document exists in Firestore
   useEffect(() => {
-    if (user && !authLoading && !profileLoading && !profile) {
+    // We attempt to bootstrap if the profile is missing OR if there was a permission error (common on first read of non-existent self-doc)
+    if (user && !authLoading && !profileLoading && (!profile || profileError)) {
       const email = user.email?.toLowerCase();
       let role = "client"; // Default role
       
@@ -47,9 +48,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         createdAt: serverTimestamp()
       };
 
+      // Proactive write to establish the profile
       setDoc(doc(db, "users", user.uid), newUserProfile, { merge: true });
     }
-  }, [user, profile, profileLoading, authLoading, db]);
+  }, [user, profile, profileLoading, authLoading, db, profileError]);
 
   const role = profile?.role || "client";
 
@@ -116,8 +118,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     return null;
   }
 
-  // Handle case where profile exists but permission error occurred initially
-  if (profileError && !profile) {
+  // Handle case where profile loading failed due to rules mismatch or missing doc
+  // We only show the error screen if we've finished trying to bootstrap and it still fails
+  if (profileError && !profile && !profileLoading) {
     return (
       <div className="min-h-screen bg-[#0D0B10] flex flex-col items-center justify-center p-8 text-center space-y-6">
         <ShieldAlert className="w-16 h-16 text-primary" />
