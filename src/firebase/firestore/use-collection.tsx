@@ -28,7 +28,7 @@ export function useCollection(query: Query | null) {
       },
       async (err) => {
         if (err.code === 'permission-denied') {
-          // Determine path if possible, or use 'collection-query'
+          // Extract path for context
           const path = (query as any)._query?.path?.segments?.join('/') || 'collection-query';
           
           const permissionError = new FirestorePermissionError({
@@ -36,10 +36,17 @@ export function useCollection(query: Query | null) {
             operation: 'list',
           });
           
-          // Only emit global error if not in a transient state
-          // For now, we still emit but the rules fix should prevent most cases
-          errorEmitter.emit('permission-error', permissionError);
+          // We return empty data and the error to the component
+          // The component can decide whether to show an error overlay or just empty state
+          setData([]);
           setError(permissionError);
+          
+          // Only emit global error if it's NOT a list operation on a dashboard
+          // Dashboard components should handle permission errors locally to avoid the fatal overlay
+          const isDashboardQuery = path.includes('tasks') || path.includes('jobRequests') || path.includes('users');
+          if (!isDashboardQuery) {
+            errorEmitter.emit('permission-error', permissionError);
+          }
         } else {
           setError(err);
         }

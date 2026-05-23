@@ -4,7 +4,7 @@ import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarFooter,
 import { 
   LayoutDashboard, Users, FolderKanban, GraduationCap, 
   Settings, LogOut, Bell, MessageSquare,
-  FileText, ShoppingBag, ClipboardList, Loader2
+  FileText, ShoppingBag, ClipboardList, Loader2, AlertCircle
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -13,15 +13,17 @@ import { Button } from "@/components/ui/button";
 import { useUser, useFirestore, useDoc } from "@/firebase";
 import { PlaceHolderImages } from "@/app/lib/placeholder-images";
 import { doc, setDoc, serverTimestamp } from "firebase/firestore";
-import { useMemo, useEffect } from "react";
+import { useMemo, useEffect, useState } from "react";
 import { signOut } from "firebase/auth";
 import { useAuth } from "@/firebase";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { user, loading: authLoading } = useUser();
   const db = useFirestore();
   const auth = useAuth();
   const logo = PlaceHolderImages.find(img => img.id === "site-logo");
+  const [bootstrapComplete, setBootstrapComplete] = useState(false);
 
   // Auth-Guarded User Reference
   const userRef = useMemo(() => {
@@ -33,11 +35,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   // Role Bootstrapper: Ensures user document exists in Firestore
   useEffect(() => {
+    const isPermissionDenied = profileError?.message?.includes("permissions");
     const shouldBootstrap = 
       user && 
       !authLoading && 
       !profileLoading && 
-      (!profile || profileError?.name === 'FirestorePermissionError');
+      (!profile || isPermissionDenied);
 
     if (shouldBootstrap) {
       const email = user.email?.toLowerCase() || "";
@@ -57,9 +60,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         createdAt: serverTimestamp()
       };
 
-      // Proactive write to establish the profile
       setDoc(doc(db, "users", user.uid), newUserProfile, { merge: true })
-        .catch((e) => console.warn("Background bootstrap pending security rules...", e));
+        .then(() => setBootstrapComplete(true))
+        .catch((e) => {
+          console.warn("Bootstrap attempt failed, retrying on next cycle...", e);
+        });
+    } else if (profile) {
+      setBootstrapComplete(true);
     }
   }, [user, profile, profileLoading, authLoading, db, profileError]);
 
@@ -194,10 +201,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </header>
 
           <div className="flex-1 overflow-y-auto p-8 bg-background/50">
-            {profileLoading ? (
+            {!bootstrapComplete || profileLoading ? (
               <div className="h-full flex flex-col items-center justify-center gap-4">
                 <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
                 <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Initializing User Session...</p>
+              </div>
+            ) : profileError && !profileError.message.includes("permissions") ? (
+              <div className="h-full flex flex-col items-center justify-center gap-4">
+                <Alert variant="destructive" className="max-w-md glass border-red-500/20">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertTitle>Nexus Error</AlertTitle>
+                  <AlertDescription>We encountered an issue synchronizing your session. Please try refreshing the transmission.</AlertDescription>
+                </Alert>
+                <Button variant="outline" onClick={() => window.location.reload()}>Retry Handshake</Button>
               </div>
             ) : children}
           </div>

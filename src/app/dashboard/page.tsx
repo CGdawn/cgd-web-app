@@ -32,42 +32,43 @@ export default function DashboardOverview() {
   const userRef = useMemo(() => user ? doc(db, "users", user.uid) : null, [db, user]);
   const { data: profile } = useDoc(userRef);
 
-  // Dynamic stats based on role
-  // Only Super Admin can see global staff counts
-  const staffQuery = useMemo(() => {
-    if (profile?.role !== "super-admin") return null;
-    return query(collection(db, "users"), where("role", "==", "staff"));
-  }, [db, profile]);
-  const { data: staffCount } = useCollection(staffQuery);
+  const role = profile?.role;
 
-  // Tasks visibility: Super Admin sees all, Staff sees own, Clients see none
+  // STAFF VISIBILITY: Only Super Admin
+  const staffQuery = useMemo(() => {
+    if (role !== "super-admin") return null;
+    return query(collection(db, "users"), where("role", "==", "staff"));
+  }, [db, role]);
+  const { data: staffList } = useCollection(staffQuery);
+
+  // TASKS VISIBILITY: Super Admin sees all, Staff sees own
   const tasksQuery = useMemo(() => {
-    if (!profile || !user) return null;
-    if (profile.role === "super-admin") return collection(db, "tasks");
-    if (profile.role === "staff") return query(collection(db, "tasks"), where("assignedToId", "==", user.uid));
+    if (!role || !user) return null;
+    if (role === "super-admin") return collection(db, "tasks");
+    if (role === "staff") return query(collection(db, "tasks"), where("assignedToId", "==", user.uid));
     return null;
-  }, [db, profile, user]);
+  }, [db, role, user]);
   const { data: tasks } = useCollection(tasksQuery);
 
-  // Jobs visibility: Super Admin sees all, Clients see own, Staff see none
+  // JOBS VISIBILITY: Super Admin sees all, Clients see own
   const jobsQuery = useMemo(() => {
-    if (!profile || !user) return null;
-    if (profile.role === "super-admin") return collection(db, "jobRequests");
-    if (profile.role === "client") return query(collection(db, "jobRequests"), where("clientId", "==", user.uid));
+    if (!role || !user) return null;
+    if (role === "super-admin") return collection(db, "jobRequests");
+    if (role === "client") return query(collection(db, "jobRequests"), where("clientId", "==", user.uid));
     return null;
-  }, [db, profile, user]);
+  }, [db, role, user]);
   const { data: jobs } = useCollection(jobsQuery);
 
   const stats = useMemo(() => {
-    if (profile?.role === "super-admin") {
+    if (role === "super-admin") {
       return [
-        { title: "Staff Core", value: staffCount?.length || 0, icon: ShieldCheck, color: "text-primary", trend: "Global team" },
+        { title: "Staff Core", value: staffList?.length || 0, icon: ShieldCheck, color: "text-primary", trend: "Global team" },
         { title: "System Tasks", value: tasks?.length || 0, icon: ClipboardList, color: "text-secondary", trend: "Active ops" },
         { title: "Job Requests", value: jobs?.length || 0, icon: FolderKanban, color: "text-primary", trend: "Inquiries" },
         { title: "Total Revenue", value: "$42.5k", icon: DollarSign, color: "text-secondary", trend: "+2.5% vs LW" },
       ];
     }
-    if (profile?.role === "staff") {
+    if (role === "staff") {
       return [
         { title: "My Tasks", value: tasks?.length || 0, icon: ClipboardList, color: "text-primary", trend: "Assignments" },
         { title: "Work Hours", value: "124", icon: Activity, color: "text-secondary", trend: "This month" },
@@ -81,14 +82,14 @@ export default function DashboardOverview() {
       { title: "Support", value: "Online", icon: Activity, color: "text-primary", trend: "24/7" },
       { title: "Journal", value: "12", icon: ClipboardList, color: "text-secondary", trend: "Read posts" },
     ];
-  }, [profile, staffCount, tasks, jobs]);
+  }, [role, staffList, tasks, jobs]);
 
   return (
     <div className="space-y-8 pb-10">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div className="space-y-1">
           <h1 className="text-3xl font-bold font-headline text-white uppercase tracking-tighter">System Intelligence</h1>
-          <p className="text-muted-foreground text-xs font-bold uppercase tracking-widest">Role: <span className="text-primary">{profile?.role?.replace("-", " ") || "authenticating..."}</span></p>
+          <p className="text-muted-foreground text-xs font-bold uppercase tracking-widest">Role: <span className="text-primary">{role?.replace("-", " ") || "authenticating..."}</span></p>
         </div>
         <div className="flex items-center gap-2 px-4 py-2 rounded-xl glass border border-white/5">
           <Activity className="w-4 h-4 text-green-500" />
@@ -151,9 +152,9 @@ export default function DashboardOverview() {
           <CardContent>
             <div className="space-y-6">
               {[
-                { label: "Role verified", val: profile?.role || "client", color: "text-primary" },
+                { label: "Role verified", val: role || "client", color: "text-primary" },
                 { label: "IP Clearance", val: "Global Proxy", color: "text-green-500" },
-                { label: "Access Level", val: profile?.role === "super-admin" ? "Level 4" : "Level 1", color: "text-secondary" },
+                { label: "Access Level", val: role === "super-admin" ? "Level 4" : "Level 1", color: "text-secondary" },
               ].map((item, i) => (
                 <div key={i} className="flex justify-between items-center py-2 border-b border-white/5 last:border-0">
                   <span className="text-[10px] uppercase tracking-widest text-muted-foreground">{item.label}</span>
