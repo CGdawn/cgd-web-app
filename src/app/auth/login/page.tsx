@@ -41,30 +41,34 @@ export default function LoginPage() {
         await signInWithEmailAndPassword(auth, email, password);
         window.location.href = "/dashboard";
       } catch (err: any) {
-        // 2. If user doesn't exist and it's a demo account, create it
+        // 2. Self-healing for Demo Accounts
         const isDemoAccount = email.endsWith("@cgdawn.org") && password === "password123";
         
-        if (isDemoAccount && (err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential')) {
+        if (isDemoAccount) {
+          // If login fails for a demo account, try creating it immediately
           try {
             await createUserWithEmailAndPassword(auth, email, password);
             window.location.href = "/dashboard";
             return;
           } catch (createErr: any) {
-            // If creation fails (e.g. email already exists but password was wrong), re-throw original error
-            throw err;
+            // If creation fails because it exists, then the original error (likely wrong password) is the one to show
+            if (createErr.code === 'auth/email-already-in-use') {
+              throw err;
+            }
+            throw createErr;
           }
         } else {
           throw err;
         }
       }
     } catch (error: any) {
-      console.error("Auth Error:", error.code, error.message);
+      // Use informative logs without triggering fatal dev overlay
+      console.log("Connection Handshake Failure:", error.code);
       
       let errorMessage = "Invalid credentials provided.";
-      if (error.code === 'auth/user-not-found') errorMessage = "This identity does not exist in our nexus.";
-      if (error.code === 'auth/wrong-password') errorMessage = "Security key mismatch. Please check your credentials.";
-      if (error.code === 'auth/invalid-credential') errorMessage = "Authentication failed. Incorrect email or password.";
-      if (error.code === 'auth/too-many-requests') errorMessage = "Access blocked due to multiple failed attempts. Try again later.";
+      if (error.code === 'auth/user-not-found') errorMessage = "Identity not found in the nexus.";
+      if (error.code === 'auth/wrong-password') errorMessage = "Security key mismatch.";
+      if (error.code === 'auth/invalid-credential') errorMessage = "Authentication failed. Ensure Email/Password is enabled in Firebase Console.";
 
       toast({
         variant: "destructive",
