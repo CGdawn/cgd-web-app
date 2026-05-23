@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Github, Mail, Lock, Info, Key, ShieldCheck, User, Briefcase, Loader2 } from "lucide-react";
+import { Github, Mail, Lock, Info, Key, ShieldCheck, User, Briefcase, Loader2, Eye, EyeOff } from "lucide-react";
 import { PlaceHolderImages } from "@/app/lib/placeholder-images";
 import { useAuth } from "@/firebase";
 import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, GithubAuthProvider, createUserWithEmailAndPassword } from "firebase/auth";
@@ -22,6 +22,7 @@ const DEMO_ACCOUNTS = [
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const auth = useAuth();
@@ -118,12 +119,19 @@ export default function LoginPage() {
                   <Lock className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
                   <Input 
                     id="password" 
-                    type="password" 
-                    className="pl-10 bg-white/5 border-white/10" 
+                    type={showPassword ? "text" : "password"} 
+                    className="pl-10 pr-10 bg-white/5 border-white/10" 
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-3 text-muted-foreground hover:text-white transition-colors"
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
                 </div>
               </div>
               <div className="flex items-center space-x-2">

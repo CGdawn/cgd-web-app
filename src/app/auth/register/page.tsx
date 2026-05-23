@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from "react";
@@ -8,11 +7,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { User, Briefcase } from "lucide-react";
+import { User, Briefcase, Eye, EyeOff, Lock } from "lucide-react";
 import { PlaceHolderImages } from "@/app/lib/placeholder-images";
 
 export default function RegisterPage() {
   const [role, setRole] = useState("client");
+  const [showPassword, setShowPassword] = useState(false);
   const logo = PlaceHolderImages.find(img => img.id === "site-logo");
 
   return (
@@ -20,7 +20,7 @@ export default function RegisterPage() {
       <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-primary/10 rounded-full blur-[120px]" />
       <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-secondary/10 rounded-full blur-[120px]" />
 
-      <div className="w-full max-w-lg space-y-8 relative z-10">
+      <div className="w-full max-lg space-y-8 relative z-10">
         <div className="text-center space-y-6">
           <Link href="/" className="inline-flex flex-col items-center gap-4 group">
             {logo && (
@@ -90,7 +90,22 @@ export default function RegisterPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
-              <Input id="password" type="password" className="bg-white/5 border-white/10" required />
+              <div className="relative">
+                <Lock className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
+                <Input 
+                  id="password" 
+                  type={showPassword ? "text" : "password"} 
+                  className="pl-10 pr-10 bg-white/5 border-white/10" 
+                  required 
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-3 text-muted-foreground hover:text-white transition-colors"
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
             </div>
             <Button className="w-full bg-primary hover:bg-primary/90 text-white h-12 rounded-xl mt-6">
               Create Account
