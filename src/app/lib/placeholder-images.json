@@ -4,169 +4,169 @@
     {
       "id": "site-logo",
       "description": "CyGen Dawn Official Logo",
-      "imageUrl": "https://picsum.photos/seed/cygen-logo/200/200",
+      "imageUrl": "/images/cgd-logo.png",
       "imageHint": "company logo"
     },
     {
       "id": "hero-bg",
       "description": "Futuristic cyberpunk city with neon lights",
-      "imageUrl": "https://picsum.photos/seed/cyberpunk1/1920/1080",
+      "imageUrl": "/images/hero-vision.jpg",
       "imageHint": "cyberpunk city"
     },
     {
       "id": "services-hero",
       "description": "Futuristic digital grid network",
-      "imageUrl": "https://picsum.photos/seed/services-hero/1920/1080",
+      "imageUrl": "/images/services-grid.jpg",
       "imageHint": "digital grid"
     },
     {
       "id": "careers-hero",
       "description": "Futuristic workspace with glowing screens",
-      "imageUrl": "https://picsum.photos/seed/careers/1920/1080",
+      "imageUrl": "/images/careers-workspace.jpg",
       "imageHint": "tech office"
     },
     {
       "id": "about-hero",
       "description": "Futuristic laboratory setup",
-      "imageUrl": "https://picsum.photos/seed/about/1920/1080",
+      "imageUrl": "/images/about-lab.jpg",
       "imageHint": "future lab"
     },
     {
       "id": "portfolio-hero",
       "description": "Immersive digital gallery",
-      "imageUrl": "https://picsum.photos/seed/gallery/1920/1080",
+      "imageUrl": "/images/portfolio-gallery.jpg",
       "imageHint": "digital art"
     },
     {
       "id": "contact-hero",
       "description": "Glowing digital communication network",
-      "imageUrl": "https://picsum.photos/seed/contact/1920/1080",
+      "imageUrl": "/images/contact-network.jpg",
       "imageHint": "network glow"
     },
     {
       "id": "blog-hero",
       "description": "Digital news stream with floating data",
-      "imageUrl": "https://picsum.photos/seed/blog/1920/1080",
+      "imageUrl": "/images/blog-stream.jpg",
       "imageHint": "tech news"
     },
     {
       "id": "store-hero",
       "description": "Futuristic digital marketplace",
-      "imageUrl": "https://picsum.photos/seed/store/1920/1080",
+      "imageUrl": "/images/store-market.jpg",
       "imageHint": "digital store"
     },
     {
       "id": "game-dev",
       "description": "Professional gaming development environment",
-      "imageUrl": "https://picsum.photos/seed/game-dev/800/600",
+      "imageUrl": "/images/service-game-dev.jpg",
       "imageHint": "game development"
     },
     {
       "id": "animation",
       "description": "3D character animation process",
-      "imageUrl": "https://picsum.photos/seed/anim/800/600",
+      "imageUrl": "/images/service-animation.jpg",
       "imageHint": "3d animation"
     },
     {
       "id": "robotics",
       "description": "Advanced robotic arm in a lab",
-      "imageUrl": "https://picsum.photos/seed/robot/800/600",
+      "imageUrl": "/images/service-robotics.jpg",
       "imageHint": "robotics ai"
     },
     {
       "id": "fullstack",
       "description": "Code on multiple screens",
-      "imageUrl": "https://picsum.photos/seed/coding/800/600",
+      "imageUrl": "/images/service-coding.jpg",
       "imageHint": "software development"
     },
     {
       "id": "vr-ar",
       "description": "Person wearing VR headset",
-      "imageUrl": "https://picsum.photos/seed/vr/800/600",
+      "imageUrl": "/images/service-vr.jpg",
       "imageHint": "virtual reality"
     },
     {
       "id": "team-ceo",
       "description": "Donald Attah CEO portrait",
-      "imageUrl": "https://picsum.photos/seed/donald-portrait/400/600",
+      "imageUrl": "/images/team-donald.jpg",
       "imageHint": "executive portrait"
     },
     {
       "id": "team-cto",
       "description": "CTO Portrait",
-      "imageUrl": "https://picsum.photos/seed/cto-sarah/400/400",
+      "imageUrl": "/images/team-cto.jpg",
       "imageHint": "tech leader"
     },
     {
       "id": "team-creative",
       "description": "Creative Director Portrait",
-      "imageUrl": "https://picsum.photos/seed/creative-marcus/400/400",
+      "imageUrl": "/images/team-creative.jpg",
       "imageHint": "creative professional"
     },
     {
       "id": "project-vr",
       "description": "VR Museum Interface",
-      "imageUrl": "https://picsum.photos/seed/vr-project/800/600",
+      "imageUrl": "/images/project-vr.jpg",
       "imageHint": "vr museum"
     },
     {
       "id": "project-game",
       "description": "Action RPG screenshot",
-      "imageUrl": "https://picsum.photos/seed/rpg-game/800/600",
+      "imageUrl": "/images/project-rpg.jpg",
       "imageHint": "action rpg"
     },
     {
       "id": "project-dashboard",
       "description": "Enterprise AI dashboard",
-      "imageUrl": "https://picsum.photos/seed/ai-dashboard/800/600",
+      "imageUrl": "/images/project-ai-dashboard.jpg",
       "imageHint": "ai dashboard"
     },
     {
       "id": "project-vem",
       "description": "3D Real Estate Visualization",
-      "imageUrl": "https://picsum.photos/seed/vem/800/600",
+      "imageUrl": "/images/project-metaverse.jpg",
       "imageHint": "3d architecture"
     },
     {
       "id": "project-edu",
       "description": "Educational platform UI",
-      "imageUrl": "https://picsum.photos/seed/eduplatform/800/600",
+      "imageUrl": "/images/project-learning.jpg",
       "imageHint": "learning app"
     },
     {
       "id": "blog-1",
       "description": "AI brain glowing concept",
-      "imageUrl": "https://picsum.photos/seed/blog-ai/800/500",
+      "imageUrl": "/images/blog-ai-future.jpg",
       "imageHint": "ai future"
     },
     {
       "id": "blog-2",
       "description": "Space exploration portal",
-      "imageUrl": "https://picsum.photos/seed/blog-space/800/500",
+      "imageUrl": "/images/blog-tech-portal.jpg",
       "imageHint": "future tech"
     },
     {
       "id": "blog-3",
       "description": "Robotic hand and human hand",
-      "imageUrl": "https://picsum.photos/seed/blog-robot/800/500",
+      "imageUrl": "/images/blog-robotics.jpg",
       "imageHint": "human robotics"
     },
     {
       "id": "prod-1",
       "description": "CyGen Gaming Jersey",
-      "imageUrl": "https://picsum.photos/seed/prod-jersey/600/600",
+      "imageUrl": "/images/product-jersey.jpg",
       "imageHint": "gaming jersey"
     },
     {
       "id": "prod-2",
       "description": "Unreal Engine Assets Pack",
-      "imageUrl": "https://picsum.photos/seed/prod-assets/600/600",
+      "imageUrl": "/images/product-assets.jpg",
       "imageHint": "digital assets"
     },
     {
       "id": "prod-3",
       "description": "VR Headset Premium",
-      "imageUrl": "https://picsum.photos/seed/prod-vr/600/600",
+      "imageUrl": "/images/product-vr-headset.jpg",
       "imageHint": "vr hardware"
     }
   ]

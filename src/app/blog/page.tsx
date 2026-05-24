@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useMemo } from "react";
@@ -45,6 +46,7 @@ export default function BlogPage() {
 
   const featuredPost = useMemo(() => posts?.find(p => p.featured), [posts]);
   const heroImage = PlaceHolderImages.find(img => img.id === "blog-hero");
+  const fallbackPostImage = PlaceHolderImages.find(img => img.id === "blog-1")?.imageUrl || "/images/blog-ai-future.jpg";
 
   return (
     <main className="min-h-screen bg-background text-white">
@@ -58,7 +60,7 @@ export default function BlogPage() {
               alt="Blog Hero" 
               fill 
               className="object-cover"
-              data-ai-hint={heroImage.imageHint}
+              priority
             />
           )}
         </div>
@@ -85,7 +87,7 @@ export default function BlogPage() {
             <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="group glass rounded-[3.5rem] overflow-hidden border border-white/10 grid grid-cols-1 lg:grid-cols-2">
               <Link href={`/blog/${featuredPost.slug}`} className="relative h-96 lg:h-full overflow-hidden">
                 <Image 
-                  src={featuredPost.imageUrl || PlaceHolderImages.find(img => img.id === "blog-1")?.imageUrl || ""} 
+                  src={featuredPost.imageUrl || fallbackPostImage} 
                   alt={featuredPost.title}
                   fill
                   className="object-cover transition-transform duration-700 group-hover:scale-105"
@@ -166,7 +168,7 @@ export default function BlogPage() {
                   >
                     <Link href={`/blog/${post.slug}`} className="relative aspect-video overflow-hidden">
                       <Image 
-                        src={post.imageUrl || PlaceHolderImages.find(img => img.id === "blog-2")?.imageUrl || ""} 
+                        src={post.imageUrl || fallbackPostImage} 
                         alt={post.title} 
                         fill 
                         className="object-cover transition-transform duration-700 group-hover:scale-110"

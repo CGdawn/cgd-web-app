@@ -6,7 +6,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { 
   Plus, Search, Loader2, Package, Edit, Trash2, 
-  Eye, ShoppingBag, DollarSign, Tag, Box
+  ShoppingBag, DollarSign, Tag, Box
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import Image from "next/image";
 
 const categories = ["Digital Assets", "Courses", "Merch", "Hardware"];
 
@@ -144,11 +145,11 @@ export default function StoreManagementPage() {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label>Image URL</Label>
+                <Label>Image URL (Local Path: /images/filename.jpg)</Label>
                 <Input 
                   value={productData.imageUrl}
                   onChange={(e) => setProductData({ ...productData, imageUrl: e.target.value })}
-                  placeholder="https://picsum.photos/seed/..."
+                  placeholder="/images/product-new.jpg"
                   className="bg-white/5 border-white/10"
                 />
               </div>
@@ -189,9 +190,9 @@ export default function StoreManagementPage() {
                 {products?.map((product) => (
                   <div key={product.id} className="p-6 flex items-center justify-between group hover:bg-white/5 transition-colors">
                     <div className="flex gap-4 items-center">
-                      <div className="h-12 w-12 rounded-xl bg-secondary/10 flex items-center justify-center border border-secondary/20 shrink-0 overflow-hidden">
+                      <div className="h-12 w-12 rounded-xl bg-secondary/10 flex items-center justify-center border border-secondary/20 shrink-0 overflow-hidden relative">
                         {product.imageUrl ? (
-                          <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover" />
+                          <Image src={product.imageUrl} alt={product.name} fill className="object-cover" />
                         ) : (
                           <Package className="w-6 h-6 text-secondary" />
                         )}
