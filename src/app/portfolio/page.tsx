@@ -9,9 +9,7 @@ import { PlaceHolderImages } from "@/app/lib/placeholder-images";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
-  Gamepad2, Glasses, Bot, Code, Box, Cpu, GraduationCap, 
-  Search, ArrowRight, ExternalLink, Sparkles,
-  Zap, Globe, Play, Star, LayoutGrid, BoxSelect, Maximize2
+  Search, Play, Star, Maximize2, Zap
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -35,32 +33,44 @@ const projects = [
   // 3D Assets
   { id: 1, title: "Ritual Sword", category: "3D Assets", img: "/images/sword.png", tech: ["Blender", "Substance"], desc: "High-fidelity hard surface modeling for cinematic use." },
   { id: 2, title: "Combat Bow", category: "3D Assets", img: "/images/bow&arrow.png", tech: ["ZBrush", "Maya"], desc: "Intricate weapon design with realistic materials." },
-  { id: 3, title: "Mortar V2", category: "3D Assets", img: "/images/mortar-2.png", tech: ["Hard Surface", "UE5"], desc: "Industrial asset modeling for tactical simulations." },
-  { id: 4, title: "Rayban Vision", category: "3D Assets", img: "/images/rayban-eyeglass.png", tech: ["Product Vis", "Octane"], desc: "Hyper-realistic eyewear product visualization." },
+  { id: 3, title: "Tactical Skateboard", category: "3D Assets", img: "/images/skateboard.png", tech: ["Blender", "PBR"], desc: "Modern street asset with realistic wear and tear." },
+  { id: 4, title: "Industrial Mortar", category: "3D Assets", img: "/images/mortar-2.png", tech: ["Hard Surface", "UE5"], desc: "Industrial asset modeling for tactical simulations." },
+  { id: 5, title: "Precision Pistle", category: "3D Assets", img: "/images/pistle.png", tech: ["Modeling", "Texturing"], desc: "Meticulous mechanical design for real-time applications." },
+  { id: 6, title: "Ceramic Pot", category: "3D Assets", img: "/images/pot.png", tech: ["Prop Design"], desc: "Stylized environment prop for immersive worlds." },
+  { id: 7, title: "Tech Cup", category: "3D Assets", img: "/images/cup.png", tech: ["Prop Design"], desc: "Everyday object rendered for high-fidelity environments." },
+  { id: 8, title: "Rayban Vision", category: "3D Assets", img: "/images/rayban-eyeglass.png", tech: ["Product Vis", "Octane"], desc: "Hyper-realistic eyewear product visualization." },
+  { id: 9, title: "Stylized Cartoon Car", category: "3D Assets", img: "/images/cartooncar.png", tech: ["Toon Shader"], desc: "Vibrant stylized vehicle for animated productions." },
+  { id: 10, title: "Lowpoly Beverage", category: "3D Assets", img: "/images/lowpoly-coke.png", tech: ["Mobile Optimized"], desc: "Optimized asset for performance-heavy applications." },
+  { id: 11, title: "Gourmet Selection", category: "3D Assets", img: "/images/lowpoly-apple&redwine.png", tech: ["Still Life"], desc: "Artistic low-poly representation of fine dining." },
   
   // Interior Viz
-  { id: 5, title: "Luxury Living", category: "Interior Visualization", img: "/images/livingroom.png", tech: ["Unreal Engine 5", "Lumen"], desc: "Interactive architectural walkthrough of a modern living space." },
-  { id: 6, title: "Digital Beauty Shop", category: "Interior Visualization", img: "/images/beauty_shop.png", tech: ["Real-time Render"], desc: "Futuristic commercial interior visualization." },
-  { id: 7, title: "Corporate Nexus", category: "Interior Visualization", img: "/images/office-view.png", tech: ["ArchViz", "V-Ray"], desc: "Modern office environment visualization." },
+  { id: 12, title: "Luxury Living Room", category: "Interior Visualization", img: "/images/livingroom.png", tech: ["Unreal Engine 5", "Lumen"], desc: "Interactive architectural walkthrough of a modern living space." },
+  { id: 13, title: "Futuristic Beauty Shop", category: "Interior Visualization", img: "/images/beauty_shop.png", tech: ["Real-time Render"], desc: "Futuristic commercial interior visualization." },
+  { id: 14, title: "Modern Studio View 1", category: "Interior Visualization", img: "/images/vew1.png", tech: ["ArchViz"], desc: "Photorealistic rendering of urban interiors." },
+  { id: 15, title: "Modern Studio View 2", category: "Interior Visualization", img: "/images/vew2.png", tech: ["ArchViz"], desc: "High-end interior lighting and material study." },
+  { id: 16, title: "Corporate Nexus", category: "Interior Visualization", img: "/images/office-view.png", tech: ["ArchViz", "V-Ray"], desc: "Modern office environment visualization." },
   
   // Level Design
-  { id: 8, title: "Metaverse GALLERIA", category: "Level Design", img: "/images/metaverse-galleria.png", tech: ["Metaverse", "Spatial"], desc: "Grand-scale virtual gallery for digital art exhibitions." },
-  { id: 9, title: "VEM7 Hub", category: "Level Design", img: "/images/vem7.png", tech: ["UE5", "Blueprints"], desc: "Cybernetic urban environment rendering." },
-  { id: 10, title: "UE5 Skyscraper", category: "Level Design", img: "/images/ue5-skyscrapper1.png", tech: ["CityGen", "Lumen"], desc: "Cinematic city environment for film production." },
-  { id: 11, title: "Metaverse Camp", category: "Level Design", img: "/images/metaverse-camp-side.png", tech: ["VR", "Unity"], desc: "Immersive nature-themed virtual camping experience." },
+  { id: 17, title: "Metaverse GALLERIA", category: "Level Design", img: "/images/metaverse-galleria.png", tech: ["Metaverse", "Spatial"], desc: "Grand-scale virtual gallery for digital art exhibitions." },
+  { id: 18, title: "Metaverse Camp Side", category: "Level Design", img: "/images/metaverse-camp-side.png", tech: ["Nature", "VR"], desc: "Immersive nature-themed virtual camping experience." },
+  { id: 19, title: "VEM1 Architectural Hub", category: "Level Design", img: "/images/vem1.png", tech: ["UE5"], desc: "Large scale structural environment for VR." },
+  { id: 20, title: "VEM7 Cyber Hub", category: "Level Design", img: "/images/vem7.png", tech: ["UE5", "Blueprints"], desc: "Cybernetic urban environment rendering." },
+  { id: 21, title: "UE5 Skyscraper", category: "Level Design", img: "/images/ue5-skyscrapper1.png", tech: ["CityGen", "Lumen"], desc: "Cinematic city environment for film production." },
+  { id: 22, title: "Skyline District", category: "Level Design", img: "/images/ue5-skyscrapper2.png", tech: ["CityGen"], desc: "Distant view of a futuristic metropolitan skyline." },
 
   // UI Design
-  { id: 12, title: "Tactical Menu HUD", category: "UI Design", img: "/images/menu1.png", tech: ["Figma", "Unity UI"], desc: "Futuristic game interface for high-action RPGs." },
-  { id: 13, title: "Starkit Dashboard", category: "UI Design", img: "/images/starkit.png", tech: ["React", "UI/UX"], desc: "Educational platform interface with gamified elements." },
-  { id: 14, title: "Inventory Nexus", category: "UI Design", img: "/images/menu2.png", tech: ["UI Engineering"], desc: "Advanced item management system interface." },
+  { id: 23, title: "Tactical Menu HUD", category: "UI Design", img: "/images/menu1.png", tech: ["Figma", "Unity UI"], desc: "Futuristic game interface for high-action RPGs." },
+  { id: 24, title: "Inventory Nexus", category: "UI Design", img: "/images/menu2.png", tech: ["UI Engineering"], desc: "Advanced item management system interface." },
+  { id: 25, title: "AI Command Center", category: "UI Design", img: "/images/menu3.png", tech: ["UX Design"], desc: "Data-heavy dashboard for industrial AI monitoring." },
+  { id: 26, title: "Starkit Dashboard", category: "UI Design", img: "/images/starkit.png", tech: ["React", "UI/UX"], desc: "Educational platform interface with gamified elements." },
 
   // Character Design
-  { id: 15, title: "Neon Knight", category: "Character Design", img: "/images/fuse1.png", tech: ["Character Creator", "Fuse"], desc: "Futuristic warrior design with modular armor." },
-  { id: 16, title: "Cyber Vanguard", category: "Character Design", img: "/images/fuse2.png", tech: ["Rigging", "Animation"], desc: "Custom-rigged character for real-time applications." },
+  { id: 27, title: "Neon Knight", category: "Character Design", img: "/images/fuse1.png", tech: ["Character Creator", "Fuse"], desc: "Futuristic warrior design with modular armor." },
+  { id: 28, title: "Cyber Vanguard", category: "Character Design", img: "/images/fuse2.png", tech: ["Rigging", "Animation"], desc: "Custom-rigged character for real-time applications." },
 
   // Game Dev
-  { id: 17, title: "Titan Platformer", category: "Game Development", img: "/images/platformer1.png", tech: ["Unity", "C#"], desc: "Fast-paced action platformer with custom physics." },
-  { id: 18, title: "Digital Snooker", category: "Game Development", img: "/images/snooker.png", tech: ["Physics Engine"], desc: "Highly accurate digital billiards simulation." }
+  { id: 29, title: "Titan Platformer", category: "Game Development", img: "/images/platformer1.png", tech: ["Unity", "C#"], desc: "Fast-paced action platformer with custom physics." },
+  { id: 30, title: "Digital Snooker", category: "Game Development", img: "/images/snooker.png", tech: ["Physics Engine"], desc: "Highly accurate digital billiards simulation." }
 ];
 
 export default function PortfolioPage() {
@@ -230,32 +240,6 @@ export default function PortfolioPage() {
               </motion.div>
             ))}
           </AnimatePresence>
-        </div>
-      </section>
-
-      {/* Portfolio Stats */}
-      <section className="py-24 px-6 relative bg-black/20">
-        <div className="max-w-7xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-8">
-          {[
-            { label: "Assets Created", value: "500+", icon: BoxSelect },
-            { label: "VR Worlds", value: "40+", icon: Glasses },
-            { label: "UI Kits", value: "25+", icon: LayoutGrid },
-            { label: "Level Renders", value: "100+", icon: Globe },
-          ].map((item, i) => (
-            <motion.div 
-              key={i}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="glass p-10 rounded-[2.5rem] border-white/5 text-center space-y-4"
-            >
-              <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto border border-primary/20">
-                <item.icon className="w-7 h-7 text-primary" />
-              </div>
-              <h4 className="text-4xl font-bold text-white font-headline">{item.value}</h4>
-              <p className="text-[10px] text-muted-foreground uppercase tracking-widest">{item.label}</p>
-            </motion.div>
-          ))}
         </div>
       </section>
 
