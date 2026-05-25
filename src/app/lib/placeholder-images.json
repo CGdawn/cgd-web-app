@@ -9,165 +9,183 @@
     },
     {
       "id": "hero-bg",
-      "description": "Futuristic cyberpunk city with neon lights",
-      "imageUrl": "/images/hero-vision.jpg",
-      "imageHint": "cyberpunk city"
+      "description": "Metaverse GALLERIA Cinematic View",
+      "imageUrl": "/images/metaverse-galleria.png",
+      "imageHint": "metaverse galleria"
+    },
+    {
+      "id": "hero-alt-1",
+      "description": "VEM7 Level Design",
+      "imageUrl": "/images/vem7.png",
+      "imageHint": "vem7 level"
+    },
+    {
+      "id": "hero-alt-2",
+      "description": "Modern Stage Environment",
+      "imageUrl": "/images/modern-stage.png",
+      "imageHint": "modern stage"
+    },
+    {
+      "id": "hero-alt-3",
+      "description": "UE5 Skyscraper Rendering",
+      "imageUrl": "/images/ue5-skyscrapper1.png",
+      "imageHint": "ue5 skyscraper"
     },
     {
       "id": "services-hero",
-      "description": "Futuristic digital grid network",
-      "imageUrl": "/images/services-grid.jpg",
-      "imageHint": "digital grid"
+      "description": "Metaverse GALLERIA Grid",
+      "imageUrl": "/images/metaverse-galleria.png",
+      "imageHint": "metaverse galleria"
     },
     {
       "id": "careers-hero",
-      "description": "Futuristic workspace with glowing screens",
-      "imageUrl": "/images/careers-workspace.jpg",
-      "imageHint": "tech office"
+      "description": "CG DAWN Office Reception",
+      "imageUrl": "/images/office-reception.png",
+      "imageHint": "office reception"
     },
     {
       "id": "about-hero",
-      "description": "Futuristic laboratory setup",
-      "imageUrl": "/images/about-lab.jpg",
-      "imageHint": "future lab"
+      "description": "CG DAWN Office View",
+      "imageUrl": "/images/office-view.png",
+      "imageHint": "office view"
     },
     {
       "id": "portfolio-hero",
-      "description": "Immersive digital gallery",
-      "imageUrl": "/images/portfolio-gallery.jpg",
-      "imageHint": "digital art"
+      "description": "Immersive Metaverse Gallery",
+      "imageUrl": "/images/metaverse-galleria.png",
+      "imageHint": "metaverse gallery"
     },
     {
       "id": "contact-hero",
-      "description": "Glowing digital communication network",
-      "imageUrl": "/images/contact-network.jpg",
-      "imageHint": "network glow"
+      "description": "Metaverse GALLERIA Communication",
+      "imageUrl": "/images/metaverse-galleria.png",
+      "imageHint": "contact background"
     },
     {
       "id": "blog-hero",
-      "description": "Digital news stream with floating data",
-      "imageUrl": "/images/blog-stream.jpg",
-      "imageHint": "tech news"
+      "description": "Blender Rain Rendering",
+      "imageUrl": "/images/blender-rain.png",
+      "imageHint": "blender rain"
     },
     {
       "id": "store-hero",
-      "description": "Futuristic digital marketplace",
-      "imageUrl": "/images/store-market.jpg",
+      "description": "Digital Marketplace Assets",
+      "imageUrl": "/images/cubanlink1.png",
       "imageHint": "digital store"
     },
     {
       "id": "game-dev",
-      "description": "Professional gaming development environment",
-      "imageUrl": "/images/service-game-dev.jpg",
-      "imageHint": "game development"
+      "description": "Platformer Project Screenshot",
+      "imageUrl": "/images/platformer1.png",
+      "imageHint": "platformer game"
     },
     {
       "id": "animation",
-      "description": "3D character animation process",
-      "imageUrl": "/images/service-animation.jpg",
+      "description": "Blender Rain Cinematic",
+      "imageUrl": "/images/blender-rain.png",
       "imageHint": "3d animation"
     },
     {
       "id": "robotics",
-      "description": "Advanced robotic arm in a lab",
-      "imageUrl": "/images/service-robotics.jpg",
-      "imageHint": "robotics ai"
+      "description": "3D Sword Asset Model",
+      "imageUrl": "/images/sword.png",
+      "imageHint": "3d assets"
     },
     {
       "id": "fullstack",
-      "description": "Code on multiple screens",
-      "imageUrl": "/images/service-coding.jpg",
-      "imageHint": "software development"
+      "description": "Starkit UI Design",
+      "imageUrl": "/images/starkit.png",
+      "imageHint": "ui design"
     },
     {
       "id": "vr-ar",
-      "description": "Person wearing VR headset",
-      "imageUrl": "/images/service-vr.jpg",
+      "description": "Metaverse Camp Side VR",
+      "imageUrl": "/images/metaverse-camp-side.png",
       "imageHint": "virtual reality"
     },
     {
       "id": "team-ceo",
-      "description": "Donald Attah CEO portrait",
-      "imageUrl": "/images/team-donald.jpg",
+      "description": "Donald Attah Logo Portrait",
+      "imageUrl": "/images/cgd-logo.png",
       "imageHint": "executive portrait"
     },
     {
       "id": "team-cto",
-      "description": "CTO Portrait",
-      "imageUrl": "/images/team-cto.jpg",
-      "imageHint": "tech leader"
+      "description": "CTO Menu Interface",
+      "imageUrl": "/images/menu3.png",
+      "imageHint": "tech lead"
     },
     {
       "id": "team-creative",
-      "description": "Creative Director Portrait",
-      "imageUrl": "/images/team-creative.jpg",
+      "description": "Creative Director Render",
+      "imageUrl": "/images/blender-rain.png",
       "imageHint": "creative professional"
     },
     {
       "id": "project-vr",
-      "description": "VR Museum Interface",
-      "imageUrl": "/images/project-vr.jpg",
-      "imageHint": "vr museum"
+      "description": "Metaverse GALLERIA VR",
+      "imageUrl": "/images/metaverse-galleria.png",
+      "imageHint": "vr project"
     },
     {
       "id": "project-game",
-      "description": "Action RPG screenshot",
-      "imageUrl": "/images/project-rpg.jpg",
-      "imageHint": "action rpg"
+      "description": "Platformer Action Gameplay",
+      "imageUrl": "/images/platformer1.png",
+      "imageHint": "action game"
     },
     {
       "id": "project-dashboard",
-      "description": "Enterprise AI dashboard",
-      "imageUrl": "/images/project-ai-dashboard.jpg",
+      "description": "Menu3 UI Design",
+      "imageUrl": "/images/menu3.png",
       "imageHint": "ai dashboard"
     },
     {
       "id": "project-vem",
-      "description": "3D Real Estate Visualization",
-      "imageUrl": "/images/project-metaverse.jpg",
+      "description": "VEM1 Real Estate Vis",
+      "imageUrl": "/images/vem1.png",
       "imageHint": "3d architecture"
     },
     {
       "id": "project-edu",
-      "description": "Educational platform UI",
-      "imageUrl": "/images/project-learning.jpg",
-      "imageHint": "learning app"
+      "description": "Starkit Educational Platform",
+      "imageUrl": "/images/starkit.png",
+      "imageHint": "learning platform"
     },
     {
       "id": "blog-1",
-      "description": "AI brain glowing concept",
-      "imageUrl": "/images/blog-ai-future.jpg",
-      "imageHint": "ai future"
+      "description": "Menu3 Interface Insight",
+      "imageUrl": "/images/menu3.png",
+      "imageHint": "ai interface"
     },
     {
       "id": "blog-2",
-      "description": "Space exploration portal",
-      "imageUrl": "/images/blog-tech-portal.jpg",
-      "imageHint": "future tech"
+      "description": "Beauty Shop UI Concept",
+      "imageUrl": "/images/beauty_shop.png",
+      "imageHint": "ui shop"
     },
     {
       "id": "blog-3",
-      "description": "Robotic hand and human hand",
-      "imageUrl": "/images/blog-robotics.jpg",
-      "imageHint": "human robotics"
+      "description": "Sword Asset Pipeline",
+      "imageUrl": "/images/sword.png",
+      "imageHint": "asset design"
     },
     {
       "id": "prod-1",
-      "description": "CyGen Gaming Jersey",
-      "imageUrl": "/images/product-jersey.jpg",
-      "imageHint": "gaming jersey"
+      "description": "CyGen NFT Item",
+      "imageUrl": "/images/nft.png",
+      "imageHint": "nft asset"
     },
     {
       "id": "prod-2",
-      "description": "Unreal Engine Assets Pack",
-      "imageUrl": "/images/product-assets.jpg",
-      "imageHint": "digital assets"
+      "description": "Lowpoly Room Collection",
+      "imageUrl": "/images/lowpoly-room1.png",
+      "imageHint": "3d assets"
     },
     {
       "id": "prod-3",
-      "description": "VR Headset Premium",
-      "imageUrl": "/images/product-vr-headset.jpg",
-      "imageHint": "vr hardware"
+      "description": "Metaverse Camp Hardware",
+      "imageUrl": "/images/metaverse-camp-side.png",
+      "imageHint": "metaverse tech"
     }
   ]
 }
