@@ -105,13 +105,13 @@
     },
     {
       "id": "team-ceo",
-      "description": "Donald Attah Logo Portrait",
+      "description": "Donald Attah Portrait",
       "imageUrl": "/images/cgd-logo.png",
       "imageHint": "executive portrait"
     },
     {
       "id": "team-cto",
-      "description": "CTO Menu Interface",
+      "description": "CTO Interface",
       "imageUrl": "/images/menu3.png",
       "imageHint": "tech lead"
     },
@@ -120,6 +120,18 @@
       "description": "Creative Director Render",
       "imageUrl": "/images/blender-rain.png",
       "imageHint": "creative professional"
+    },
+    {
+      "id": "team-ops",
+      "description": "Operations Workspace",
+      "imageUrl": "/images/office-reception.png",
+      "imageHint": "workspace"
+    },
+    {
+      "id": "team-learning",
+      "description": "Learning Hub",
+      "imageUrl": "/images/classroom.png",
+      "imageHint": "education"
     },
     {
       "id": "project-vr",

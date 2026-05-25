@@ -86,6 +86,7 @@ const culture = [
 export default function CareersPage() {
   const [selectedJob, setSelectedJob] = useState<typeof jobs[0] | null>(null);
   const heroImage = PlaceHolderImages.find(img => img.id === "careers-hero");
+  const learningImage = PlaceHolderImages.find(img => img.id === "team-learning")?.imageUrl || "/images/classroom.png";
 
   return (
     <main className="min-h-screen bg-background text-white">
@@ -289,11 +290,10 @@ export default function CareersPage() {
             <div className="flex-1 glass p-2 rounded-[3rem] border-white/5">
               <div className="relative aspect-video rounded-[2.5rem] overflow-hidden">
                 <Image 
-                  src="https://picsum.photos/seed/learn/800/600" 
+                  src={learningImage} 
                   alt="Internship" 
                   fill 
                   className="object-cover"
-                  data-ai-hint="mentorship tech"
                 />
               </div>
             </div>

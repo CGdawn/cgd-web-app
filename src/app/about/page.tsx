@@ -256,7 +256,7 @@ export default function AboutPage() {
             <div className="relative aspect-[3/4] max-w-md mx-auto glass p-3 rounded-[4rem] border-white/10 rotate-2 group hover:rotate-0 transition-transform duration-700">
               <div className="relative w-full h-full overflow-hidden rounded-[3.5rem]">
                 <Image 
-                  src={PlaceHolderImages.find(img => img.id === "team-ceo")?.imageUrl || ""} 
+                  src={PlaceHolderImages.find(img => img.id === "team-ceo")?.imageUrl || "/images/cgd-logo.png"} 
                   alt="Donald Attah" 
                   fill 
                   className="object-cover grayscale hover:grayscale-0 transition-all duration-700"
@@ -304,7 +304,7 @@ export default function AboutPage() {
                 <CardContent className="p-0">
                   <div className="relative h-72 w-full overflow-hidden">
                     <Image 
-                      src={PlaceHolderImages.find(img => img.id === member.img)?.imageUrl || `https://picsum.photos/seed/team-${i}/600/800`} 
+                      src={PlaceHolderImages.find(img => img.id === member.img)?.imageUrl || "/images/cgd-logo.png"} 
                       alt={member.name} 
                       fill 
                       className="object-cover transition-transform duration-700 group-hover:scale-105"
