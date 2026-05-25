@@ -1,11 +1,11 @@
 'use client';
 
 /**
- * @fileOverview Firebase Modular SDK Entry Point
+ * @fileOverview Production Firebase Modular SDK Entry Point
  * Initializes and exports singleton instances for Auth, Firestore, and Storage.
  * 
  * SECURITY RULES DEPLOYMENT TRIGGER:
- * Updated: 2024-05-25 10:15:00 UTC
+ * Updated: 2024-05-26 12:00:00 UTC
  * 
  * REQUIRED SECURITY RULES:
  * service cloud.firestore {
@@ -30,9 +30,9 @@
  * 
  *     // Users Collection
  *     match /users/{userId} {
- *       allow get: if request.auth != null && (request.auth.uid == userId || isSuperAdmin());
- *       allow list: if isSuperAdmin() || isAdmin();
- *       allow create: if request.auth != null && request.auth.uid == userId;
+ *       allow get: if request.auth != null && (request.auth.uid == userId || isSuperAdmin() || isAdmin());
+ *       allow list: if isAdmin() || isSuperAdmin();
+ *       allow create: if request.auth != null;
  *       allow update: if request.auth != null && (request.auth.uid == userId || isSuperAdmin());
  *       allow delete: if isSuperAdmin();
  *     }
@@ -59,7 +59,7 @@
  *     // Tasks Collection
  *     match /tasks/{taskId} {
  *       allow read: if request.auth != null && (resource.data.assignedToId == request.auth.uid || isAdmin());
- *       allow list: if isStaff();
+ *       allow list: if isStaff() || isAdmin();
  *       allow create: if isSuperAdmin();
  *       allow update: if request.auth != null && (resource.data.assignedToId == request.auth.uid || isSuperAdmin());
  *       allow delete: if isSuperAdmin();

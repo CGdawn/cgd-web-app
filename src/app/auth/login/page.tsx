@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from "react";
@@ -10,9 +9,10 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Github, Mail, Lock, Info, Key, ShieldCheck, User, Briefcase, Loader2, Eye, EyeOff } from "lucide-react";
 import { PlaceHolderImages } from "@/app/lib/placeholder-images";
-import { useAuth } from "@/firebase";
-import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, GithubAuthProvider, createUserWithEmailAndPassword } from "firebase/auth";
+import { useAuth, useFirestore } from "@/firebase";
+import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, GithubAuthProvider } from "firebase/auth";
 import { useToast } from "@/hooks/use-toast";
+import { syncUserToFirestore, getRedirectPath, handleGoogleSignIn } from "@/firebase/auth/auth-service";
 
 const DEMO_ACCOUNTS = [
   { role: "Super Admin", email: "superadmin@cgdawn.org", icon: ShieldCheck, color: "text-primary" },
@@ -27,6 +27,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const auth = useAuth();
+  const db = useFirestore();
   const { toast } = useToast();
   
   const logo = PlaceHolderImages.find(img => img.id === "site-logo");
@@ -36,45 +37,34 @@ export default function LoginPage() {
     setIsLoading(true);
     
     try {
-      // 1. Attempt standard login
-      try {
-        await signInWithEmailAndPassword(auth, email, password);
-        window.location.href = "/dashboard";
-      } catch (err: any) {
-        // 2. Self-healing for Demo Accounts
-        const isDemoAccount = email.endsWith("@cgdawn.org") && password === "password123";
-        
-        if (isDemoAccount) {
-          // If login fails for a demo account, try creating it immediately
-          try {
-            await createUserWithEmailAndPassword(auth, email, password);
-            window.location.href = "/dashboard";
-            return;
-          } catch (createErr: any) {
-            // If creation fails because it exists, then the original error (likely wrong password) is the one to show
-            if (createErr.code === 'auth/email-already-in-use') {
-              throw err;
-            }
-            throw createErr;
-          }
-        } else {
-          throw err;
-        }
-      }
+      const result = await signInWithEmailAndPassword(auth, email, password);
+      console.log("Login success. Syncing profile...");
+      const profile = await syncUserToFirestore(db, result.user, 'password');
+      const redirectPath = getRedirectPath(profile.role);
+      console.log("Redirecting to:", redirectPath);
+      window.location.href = redirectPath;
     } catch (error: any) {
-      // Use informative logs without triggering fatal dev overlay
-      console.log("Connection Handshake Failure:", error.code);
-      
+      console.error("Auth Error:", error.code);
       let errorMessage = "Invalid credentials provided.";
       if (error.code === 'auth/user-not-found') errorMessage = "Identity not found in the nexus.";
       if (error.code === 'auth/wrong-password') errorMessage = "Security key mismatch.";
-      if (error.code === 'auth/invalid-credential') errorMessage = "Authentication failed. Ensure Email/Password is enabled in Firebase Console.";
 
       toast({
         variant: "destructive",
         title: "Access Denied",
         description: errorMessage,
       });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const onGoogleSignIn = async () => {
+    setIsLoading(true);
+    try {
+      await handleGoogleSignIn(auth, db);
+    } catch (error: any) {
+      toast({ variant: "destructive", title: "Authentication Failed", description: error.message });
     } finally {
       setIsLoading(false);
     }
@@ -87,13 +77,10 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-6 relative overflow-hidden">
-      {/* Background Orbs */}
       <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/10 rounded-full blur-[120px]" />
       <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-secondary/10 rounded-full blur-[120px]" />
 
       <div className="w-full max-w-4xl grid grid-cols-1 lg:grid-cols-2 gap-8 items-center relative z-10">
-        
-        {/* Left Side: Login Form */}
         <div className="space-y-8">
           <div className="text-center lg:text-left space-y-6">
             <Link href="/" className="inline-flex flex-col lg:flex-row items-center gap-4 group">
@@ -157,10 +144,6 @@ export default function LoginPage() {
                   </button>
                 </div>
               </div>
-              <div className="flex items-center space-x-2">
-                <Checkbox id="remember" />
-                <label htmlFor="remember" className="text-sm text-muted-foreground">Keep session active</label>
-              </div>
               <Button 
                 type="submit" 
                 className="w-full bg-primary hover:bg-primary/90 text-white h-12 rounded-xl"
@@ -180,10 +163,7 @@ export default function LoginPage() {
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              <Button variant="outline" className="glass border-white/5 hover:bg-white/5" onClick={() => signInWithPopup(auth, new GithubAuthProvider())}>
-                <Github className="mr-2 h-4 w-4" /> Github
-              </Button>
-              <Button variant="outline" className="glass border-white/5 hover:bg-white/5" onClick={() => signInWithPopup(auth, new GoogleAuthProvider())}>
+              <Button variant="outline" className="glass border-white/5 hover:bg-white/5" onClick={onGoogleSignIn}>
                 <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
                   <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
                   <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
@@ -192,11 +172,13 @@ export default function LoginPage() {
                 </svg>
                 Google
               </Button>
+              <Button variant="outline" className="glass border-white/5 hover:bg-white/5" onClick={() => signInWithPopup(auth, new GithubAuthProvider())}>
+                <Github className="mr-2 h-4 w-4" /> Github
+              </Button>
             </div>
           </div>
         </div>
 
-        {/* Right Side: Demo Access */}
         <div className="space-y-6">
           <div className="glass p-8 rounded-[2rem] border-white/5 space-y-6">
             <div className="flex items-center gap-3 text-primary">
@@ -226,11 +208,6 @@ export default function LoginPage() {
                 </button>
               ))}
             </div>
-            <div className="p-4 bg-primary/5 rounded-xl border border-primary/10">
-              <p className="text-[10px] text-primary/80 leading-relaxed italic text-center">
-                * Note: The first login will automatically provision your Firestore role.
-              </p>
-            </div>
           </div>
           
           <p className="text-center text-sm text-muted-foreground">
@@ -238,7 +215,6 @@ export default function LoginPage() {
             <Link href="/auth/register" className="text-primary font-bold hover:underline">Join the Mission</Link>
           </p>
         </div>
-
       </div>
     </div>
   );
